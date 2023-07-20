@@ -1,0 +1,449 @@
+- id: '1668838400545'
+  name: Christmas Lights - Windows On
+  entities:
+    switch.study_quad_top:
+      friendly_name: Study - Quad - Top
+      state: 'on'
+    switch.bedroom_master_main_window_outlet_switch:
+      friendly_name: Bedroom - Master - Main Window - Outlet Switch
+      state: 'on'
+    switch.bedroom_elaina_outlet_1:
+      friendly_name: Bedroom - Elaina - Outlet 1
+      state: 'on'
+    switch.bedroom_elaina_outlet_2:
+      friendly_name: Bedroom - Elaina - Outlet 2
+      state: 'on'
+    switch.bedroom_toby_outlet:
+      friendly_name: Bedroom - Toby -  Outlet
+      state: 'on'
+    switch.bedroom_leo_outlet:
+      friendly_name: Bedroom - Leo - Outlet
+      state: 'on'
+    switch.dinning_outlet:
+      friendly_name: Dinning - Outlet
+      state: 'on'
+    switch.great_room_christmas_lights_left_switch_0:
+      friendly_name: Great Room - Christmas Lights - Left switch_0
+      state: 'on'
+    switch.great_room_christmas_lights_right_switch_0:
+      friendly_name: Great Room - Christmas Lights  - Right switch_0
+      state: 'on'
+    switch.great_room_christmas_lights_main_window:
+      friendly_name: Great Room - Christmas Lights - Main Window
+      state: 'on'
+    switch.solarium_outlet:
+      friendly_name: Solarium - Outlet
+      state: 'on'
+    switch.bedroom_elijah_outlet:
+      friendly_name: Bedroom - Elijah - Outlet
+      state: 'on'
+    switch.bedroom_master_small_window_switch:
+      friendly_name: Bedroom - Master - Small Window Switch
+      state: 'on'
+  metadata:
+    switch.study_quad_top:
+      entity_only: true
+  icon: mdi:string-lights
+- id: '1671383116835'
+  name: Dishes - Clean
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 82
+      hs_color:
+      - 120
+      - 100
+      rgb_color:
+      - 0
+      - 255
+      - 0
+      xy_color:
+      - 0.172
+      - 0.747
+      state: 'on'
+  icon: mdi:dishwasher
+  metadata: {}
+- id: '1671383140060'
+  name: Dishes - Dirty
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 82
+      hs_color:
+      - 345
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 63
+      xy_color:
+      - 0.667
+      - 0.284
+      state: 'on'
+  icon: mdi:dishwasher-off
+  metadata: {}
+- id: '1671383951945'
+  name: Dishes - Running
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 195
+      - 85
+      rgb_color:
+      - 38
+      - 200
+      - 255
+      xy_color:
+      - 0.153
+      - 0.254
+      effect: Ocean
+      state: 'on'
+  icon: mdi:dishwasher-alert
+  metadata: {}
+- id: '1671436319322'
+  name: Christmas Lights - All Off
+  entities:
+    switch.bedroom_master_main_window_outlet_switch:
+      friendly_name: Bedroom - Master - Main Window - Outlet Switch
+      state: 'off'
+    switch.bedroom_elaina_outlet_1:
+      friendly_name: Bedroom - Elaina - Outlet 1
+      state: 'off'
+    switch.bedroom_elaina_outlet_2:
+      friendly_name: Bedroom - Elaina - Outlet 2
+      state: 'off'
+    switch.bedroom_toby_outlet:
+      friendly_name: Bedroom - Toby -  Outlet
+      state: 'off'
+    switch.bedroom_leo_outlet:
+      friendly_name: Bedroom - Leo - Outlet
+      state: 'off'
+    switch.dinning_outlet:
+      friendly_name: Dinning - Outlet
+      state: 'off'
+    switch.great_room_christmas_lights_left_switch_0:
+      friendly_name: Great Room - Christmas Lights - Left switch_0
+      state: 'off'
+    switch.great_room_christmas_lights_right_switch_0:
+      friendly_name: Great Room - Christmas Lights  - Right switch_0
+      state: 'off'
+    switch.great_room_christmas_lights_main_window:
+      friendly_name: Great Room - Main Window
+      state: 'off'
+    switch.solarium_outlet:
+      friendly_name: Solarium - Outlet
+      state: 'off'
+    switch.bedroom_elijah_outlet:
+      friendly_name: Bedroom - Elijah - Outlet
+      state: 'off'
+    switch.study_quad_top:
+      friendly_name: Study - Quad - Top
+      state: 'off'
+    switch.great_room_christmas_tree_switch:
+      friendly_name: Great Room - Christmas Tree Switch
+      state: 'off'
+    switch.floor_2_picture_window_outlet:
+      friendly_name: Floor 2 - Picture Window - Outlet
+      state: 'off'
+    switch.bedroom_master_small_window_switch:
+      friendly_name: Bedroom - Master - Small Window Switch
+      state: 'off'
+  metadata:
+    switch.study_quad_top:
+      entity_only: true
+    switch.great_room_christmas_tree_switch:
+      entity_only: true
+  icon: mdi:pine-tree
+- id: '1671669683621'
+  name: Color - Alex
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 30
+      - 100
+      rgb_color:
+      - 255
+      - 127
+      - 0
+      xy_color:
+      - 0.612
+      - 0.374
+      state: 'on'
+  metadata: {}
+- id: '1672718255336'
+  name: Color - Elaina
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 285
+      - 100
+      rgb_color:
+      - 191
+      - 0
+      - 255
+      xy_color:
+      - 0.301
+      - 0.116
+      state: 'on'
+  metadata: {}
+- id: '1672718306416'
+  name: Color - Elijah
+  entities:
+    light.kitchen_dishwasher_status_lights:
+      min_color_temp_kelvin: 2500
+      max_color_temp_kelvin: 9009
+      min_mireds: 111
+      max_mireds: 400
+      effect_list:
+      - Aurora
+      - Bubbling Cauldron
+      - Candy Cane
+      - Christmas
+      - Flicker
+      - Hanukkah
+      - Haunted Mansion
+      - Icicle
+      - Lightning
+      - Ocean
+      - Rainbow
+      - Raindrop
+      - Spring
+      - Valentines
+      supported_color_modes:
+      - brightness
+      - color_temp
+      - hs
+      friendly_name: Kitchen - Dishwasher - Status Lights
+      supported_features: 36
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 225
+      - 100
+      rgb_color:
+      - 0
+      - 63
+      - 255
+      xy_color:
+      - 0.137
+      - 0.065
+      state: 'on'
+  metadata: {}
+- id: '1673252166116'
+  name: Christmas Trees - On
+  entities:
+    switch.floor_2_picture_window_outlet:
+      friendly_name: Floor 2 - Picture Window - Outlet
+      state: 'on'
+    switch.great_room_christmas_tree_switch:
+      friendly_name: Great Room - Christmas Tree Switch
+      state: 'on'
+  metadata: {}
+- id: '1673252204772'
+  name: Christmas Trees - Off
+  entities:
+    switch.floor_2_picture_window_outlet:
+      friendly_name: Floor 2 - Picture Window - Outlet
+      state: 'off'
+    switch.great_room_christmas_tree_switch:
+      friendly_name: Great Room - Christmas Tree Switch
+      state: 'off'
+  metadata: {}
+- id: '1673757938868'
+  name: House Lights Off
+  entities:
+    switch.great_room_can_lights:
+      friendly_name: Great Room - Can Lights
+      state: 'off'
+    light.kitchen_lights_pendants:
+      supported_color_modes:
+      - onoff
+      friendly_name: Kitchen - Lights - Pendants
+      supported_features: 0
+      state: 'off'
+    light.study_lights:
+      supported_color_modes:
+      - onoff
+      friendly_name: Study - Lights
+      supported_features: 0
+      state: 'off'
+    light.bedroom_toby_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom - Toby - Light
+      supported_features: 0
+      state: 'off'
+    light.bedroom_leo_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom - Leo - Light
+      supported_features: 0
+      state: 'off'
+    light.bedroom_elaina_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom - Elaina - Light
+      supported_features: 0
+      state: 'off'
+    light.elaina_bath_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Elaina Bath Light
+      supported_features: 0
+      state: 'off'
+    switch.elaina_bath_fan:
+      friendly_name: Elaina Bath Fan
+      state: 'off'
+    light.bathroom_master_lights:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bathroom - Master - Lights
+      supported_features: 0
+      state: 'off'
+    light.bedroom_master_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom - Master - Light
+      supported_features: 0
+      state: 'off'
+    light.basement_bathroom_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Basement Bathroom Light
+      supported_features: 0
+      state: 'off'
+    switch.basement_bathroom_fan:
+      friendly_name: Basement Bathroom Fan
+      state: 'off'
+  metadata: {}

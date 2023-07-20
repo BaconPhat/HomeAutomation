@@ -1,0 +1,25 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+http:
+  ip_ban_enabled: true
+  login_attempts_threshold: 5
+
+# Zigbee Config - hard coded channel to use
+zha:
+  zigpy_config:
+    network:
+      channel: 15 # What channel the radio should try to use
+      channels: [15, 20, 25] # Channel mask
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+# YAML Includes:
+## Default
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+## Custom
+notify: !include notify.yaml # Notifications
