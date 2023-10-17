@@ -5,6 +5,10 @@ http:
   ip_ban_enabled: true
   login_attempts_threshold: 5
 
+# MariaDB rather than SQLite
+recorder:
+  db_url: mysql://<VAULT>
+
 # Zigbee Config - hard coded channel to use
 zha:
   zigpy_config:
