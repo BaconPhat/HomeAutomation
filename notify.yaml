@@ -1,0 +1,101 @@
+# HA-to-Gmail
+- name: HA-to-Gmail
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Sender-Recipient
+  sender_name: !secret Sender-Name
+
+  # Gmail to SMS Everyone
+- name: SMS-Everyone
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-PJ
+    - !secret Cell-Charity
+    - !secret Cell-Alex
+    - !secret Cell-Elaina
+    - !secret Cell-Elijah
+  sender_name: !secret Sender-Name
+
+# GMail to SMS - PJ
+- name: SMS-PJ
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-PJ
+  sender_name: !secret Sender-Name
+
+  # GMail to SMS - Charity
+- name: SMS-Charity
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-Charity
+  sender_name: !secret Sender-Name
+
+# GMail to SMS - Alex
+- name: SMS-Alex
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-Alex
+  sender_name: !secret Sender-Name
+
+# GMail to SMS - Elaina
+- name: SMS-Elaina
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-Elaina
+  sender_name: !secret Sender-Name
+
+# GMail to SMS - Elijah
+- name: SMS-Elijah
+  platform: smtp
+  server: "smtp.gmail.com"
+  port: 587
+  timeout: 15
+  sender: !secret gmail-username
+  encryption: starttls
+  username: !secret gmail-username
+  password: !secret gmail-pass
+  recipient:
+    - !secret Cell-Elijah
+  sender_name: !secret Sender-Name
