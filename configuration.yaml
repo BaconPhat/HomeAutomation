@@ -22,4 +22,5 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 ## Custom
-notify: !include notify.yaml # Notifications
+notify: !include notify.yaml
+group: !include group.yaml
