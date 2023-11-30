@@ -1,12 +1,12 @@
 - id: '1668049711760'
   alias: Kitchen - Magic Button - Dishwasher Dirty
-  description: Magic button to reset the Dishwasher cycle
+  description: Magic button to reset the Dishwasher cycle to next kid
   trigger:
   - device_id: a96f25e4bdaa46b723277e82f971aa11
     domain: zha
     platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
+    type: remote_button_double_press
+    subtype: remote_button_double_press
   condition: []
   action:
   - service: input_select.set_options
@@ -35,7 +35,7 @@
   mode: single
 - id: '1668126358116'
   alias: Bathroom Fan - Powder - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 7 minutes
   trigger:
   - platform: state
     entity_id:
@@ -53,7 +53,7 @@
     domain: switch
   mode: single
 - id: '1668144723959'
-  alias: Alert - Door Opened - Toby or Leo
+  alias: Alert - Door Opened - Younglings
   description: When Toby or Leo opens  a bathroom or bedroom door, during nap time
     or bed time, alerts are sent
   trigger:
@@ -67,7 +67,7 @@
     alias: Toby's Bathroom Door
   - platform: state
     entity_id:
-    - binary_sensor.lumi_lumi_sensor_magnet_aq2_opening
+    - binary_sensor.bedroom_leo_door_opening
     alias: Leo's Bedroom Door
   - platform: state
     entity_id:
@@ -80,19 +80,22 @@
       before: '14:30:00'
       after: '13:00:00'
       alias: Nap Time
-    - condition: time
+    - alias: Bed Time
+      condition: time
       before: 06:30:00
-      after: '21:00:00'
-      alias: Bed Time
+      after: '20:30:00'
+    enabled: true
   action:
   - service: notify.notify
     data:
       title: Alert!!
-      message: '{{trigger.alias}} has been opened'
+      message: "{{trigger.alias}} has been {% if is_state('binary_sensor.group_door_sensors',
+        'off') %} \n  closed\n{% elif is_state('binary_sensor.group_door_sensors',
+        'on') %}\n  opened\n{% endif %} "
   mode: single
 - id: '1668228377279'
   alias: Bathroom Fan - Basement - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 10 minutes
   trigger:
   - platform: device
     type: turned_on
@@ -111,45 +114,56 @@
     domain: switch
   mode: single
 - id: '1668820025270'
-  alias: Christmas Lights - Windows On
-  description: At Sunset, turn on all the exterior window Christmas lights
+  alias: Christmas Lights - Windows/Exterior On, Adjust Banisters
+  description: If Helper "Christmas Time" is on, at sunset, turn on all the exterior
+    roof and window Christmas lights. This also dims the banister lights to 20% bright
   trigger:
   - platform: sun
     event: sunset
     offset: -00:45:00
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.christmas_time
+    state: 'on'
   action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 25
+    target:
+      entity_id:
+      - light.floor_2_banister_left
+      - light.floor_2_banister_right
   - service: scene.turn_on
     target:
       entity_id: scene.christmas_lights_windows_on
     metadata: {}
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - service: scene.turn_on
+    target:
+      entity_id: scene.christmas_lights_exterior
+    metadata: {}
   mode: single
 - id: '1668830222350'
   alias: Study - Lighting
-  description: Turns on the Study lights 15 min before sunset
+  description: If I am home, turns on the Study lights 45 min before sunset, or, when
+    I long press the magic button
   trigger:
-  - platform: sun
-    event: sunset
-    offset: -00:15:00
   - device_id: b0ee0f32f6e310570644faccd2ba5e75
     domain: zha
     platform: device
     type: remote_button_long_release
     subtype: remote_button_long_release
+  - platform: sun
+    event: sunset
+    offset: '-45'
   condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: binary_sensor.workday_sensor
-      state: 'on'
-    - type: is_occupied
-      condition: device
-      device_id: 330b6bf9eced7be7462f4560e0c9c707
-      entity_id: binary_sensor.study_motion_occupancy
-      domain: binary_sensor
-    - condition: state
-      entity_id: person.baconphat
-      state: home
+  - condition: state
+    entity_id: person.baconphat
+    state: home
   action:
   - type: toggle
     device_id: ff948034f51b5e665e6cc62868d7e2fd
@@ -158,24 +172,30 @@
   mode: single
 - id: '1668837319768'
   alias: Christmas Lights - Off
-  description: Thrums window lights off, waits 30 min, then Christmas lights off
+  description: If Helper "Christmas Time" is on, turns all Christmas lights off.
   trigger:
   - platform: time
     at: '23:30:00'
-  condition: []
+  condition:
+  - condition: state
+    entity_id: input_boolean.christmas_time
+    state: 'on'
   action:
   - service: scene.turn_on
     target:
-      entity_id: scene.christmas_lights_all_off
+      entity_id: scene.christmas_lights_windows_off
     metadata: {}
-  - delay:
-      hours: 0
-      minutes: 30
-      seconds: 0
-      milliseconds: 0
   - service: scene.turn_on
     target:
-      entity_id: scene.christmas_tree_off
+      entity_id: scene.christmas_trees_off
+    metadata: {}
+  - service: scene.turn_on
+    target:
+      entity_id: scene.christmas_lights_banister_off
+    metadata: {}
+  - service: scene.turn_on
+    target:
+      entity_id: scene.christmas_lights_exterior_off
     metadata: {}
   mode: single
 - id: '1668839452852'
@@ -196,7 +216,7 @@
   mode: single
 - id: '1668984543374'
   alias: Bathroom Fan - Elaina - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 10 minutes
   trigger:
   - platform: device
     type: turned_on
@@ -205,7 +225,7 @@
     domain: switch
     for:
       hours: 0
-      minutes: 7
+      minutes: 10
       seconds: 0
   condition: []
   action:
@@ -216,17 +236,8 @@
   mode: single
 - id: '1669536240178'
   alias: Alert - Laundry - Dryer
-  description: ''
+  description: Notifies when the dryer cycle is complete, time to fold!
   trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.laundry_dryer_vibration
-    from: 'on'
-    for:
-      hours: 0
-      minutes: 7
-      seconds: 0
-    to: 'off'
   - platform: state
     entity_id:
     - binary_sensor.lumi_lumi_vibration_aq1_iaszone_2
@@ -238,7 +249,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.mobile_app_baconphat
+  - service: notify.notify
     data:
       message: Dryer is done, empty please
       title: Laundry
@@ -247,67 +258,19 @@
   alias: Alert - Laundry - Washer
   description: Washing machine is done, change the laundry
   trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.laundry_washer_vibration
-    from: 'on'
-    for:
-      hours: 0
-      minutes: 5
-      seconds: 0
-    to: 'off'
   - platform: numeric_state
-    entity_id: sensor.laundry_washing_machine_switch_0_power
+    entity_id: sensor.laundry_washing_machine_outlet_current
     for:
       hours: 0
-      minutes: 5
+      minutes: 15
       seconds: 0
-    above: 20
+    below: 3
   condition: []
   action:
-  - service: notify.mobile_app_baconphat
+  - service: notify.notify
     data:
-      message: Washer is done, move to dryer asap
+      message: Washer done, time to move the laundry to the Dryer
       title: Laundry
-  mode: single
-- id: '1670646343838'
-  alias: Thermostats - Winter - Evenings
-  description: 'Set 1st Floor thermostat to 72 degrees at 8:00 PM
-
-    Set 2nd Floor thermostat to 74 degrees at 8:00 PM'
-  trigger:
-  - platform: time
-    at: '19:30:00'
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_boolean.vacation_mode
-      state: 'off'
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 72
-      hvac_mode: heat
-    target:
-      entity_id: climate.floor_1
-  - service: climate.set_temperature
-    data:
-      temperature: 72
-      hvac_mode: heat
-    target:
-      entity_id: climate.floor_2
-  - delay:
-      hours: 3
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - service: climate.set_temperature
-    data:
-      temperature: 73
-      hvac_mode: heat
-    target:
-      entity_id: climate.floor_2
   mode: single
 - id: '1670720766857'
   alias: Study - Magic Button - Camera - Hot
@@ -325,7 +288,7 @@
       entity_id: switch.study_quad_bottom
       state: 'off'
     then:
-    - service: notify.gmail_via_sms
+    - service: notify.sms_everyone
       data:
         message: Study Camera is HOT
     - type: turn_on
@@ -333,7 +296,7 @@
       entity_id: switch.study_quad_bottom
       domain: switch
     else:
-    - service: notify.gmail_via_sms
+    - service: notify.sms_everyone
       data:
         message: Study Camera - All Clear
     - type: turn_off
@@ -341,42 +304,18 @@
       entity_id: switch.study_quad_bottom
       domain: switch
   mode: single
-- id: '1670744837850'
-  alias: Thermostats - Winter - Daytime
-  description: '1st Floor - 72
-
-    2nd Floor - 70'
-  trigger:
-  - platform: time
-    at: 08:00:00
-  condition:
-  - condition: and
-    conditions:
-    - condition: state
-      entity_id: input_boolean.vacation_mode
-      state: 'off'
-  action:
-  - service: climate.set_temperature
-    data:
-      temperature: 72
-      hvac_mode: heat
-    target:
-      entity_id: climate.floor_1
-  - service: climate.set_temperature
-    data:
-      temperature: 70
-      hvac_mode: heat
-    target:
-      entity_id: climate.floor_2
-  mode: single
 - id: '1671238740177'
   alias: Bathroom Fan - Elaina - Shower Humidity
-  description: ''
+  description: If the thermal sensor detects humidity above 60% in the bathroom, turn
+    on the bathroom fan
   trigger:
   - platform: numeric_state
     above: 60
     entity_id: sensor.lumi_lumi_weather_humidity
-  condition: []
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: 00:00:00
   action:
   - type: turn_on
     device_id: c54859ef1b7bfc612862d048959faba1
@@ -385,12 +324,16 @@
   mode: single
 - id: '1671243382961'
   alias: Bathroom Fan - Basement - Shower Humidity
-  description: ''
+  description: If the thermal sensor detects humidity above 60% in the bathroom, turn
+    on the bathroom fan
   trigger:
   - platform: numeric_state
     entity_id: sensor.bathroom_basement_therm_humidity
     above: 60
-  condition: []
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: 00:00:00
   action:
   - type: turn_on
     device_id: 626bd54c1736871c7fc719f0ba7a1a2d
@@ -398,17 +341,20 @@
     domain: switch
   mode: single
 - id: '1671391679928'
-  alias: Dishwasher - Running
+  alias: Kitchen - Dishwasher - Running
   description: ''
   trigger:
   - platform: numeric_state
-    entity_id: sensor.kitchen_dishwasher_plug_switch_0_power
-    above: 10
-  condition: []
+    entity_id: sensor.kitchen_dishwasher_plug_power
+    above: 45
+  condition:
+  - condition: state
+    entity_id: input_select.dishwasher_status_list
+    state: Dirty
   action:
   - service: input_select.set_options
     data:
-      options: Clean
+      options: Running
     target:
       entity_id: input_select.dishwasher_status_list
   - service: scene.turn_on
@@ -417,7 +363,7 @@
     metadata: {}
   mode: single
 - id: '1671514087821'
-  alias: Dishwasher - Clean
+  alias: Kitchen - Dishwasher - Clean
   description: ''
   trigger:
   - platform: numeric_state
@@ -426,7 +372,7 @@
       hours: 0
       minutes: 10
       seconds: 0
-    below: 10
+    above: 10
   condition: []
   action:
   - repeat:
@@ -483,8 +429,10 @@
           seconds: 3
           milliseconds: 0
 - id: '1671643562521'
-  alias: Dishwasher - Dirty
-  description: ''
+  alias: Kitchen - Dishwasher - Dirty
+  description: If the dishwasher door is open, as long as the condition of 'dirty'
+    is true, light the LED strip to red for 5 seconds to visually indicate the dishes
+    are dirty
   trigger:
   - type: opened
     platform: device
@@ -512,7 +460,7 @@
   mode: single
 - id: '1672893214006'
   alias: Bathroom Fan - Master - Water Closet - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 10 minutes
   trigger:
   - platform: device
     type: changed_states
@@ -532,7 +480,7 @@
   mode: single
 - id: '1673225652045'
   alias: Coach Lights - On
-  description: Turn coach lights on 30 min before sunset
+  description: Turn coach lights on 45 min before sunset
   trigger:
   - platform: sun
     event: sunset
@@ -558,233 +506,14 @@
     entity_id: light.coach_lights_front_door
     domain: light
   mode: single
-- id: '1673225833426'
-  alias: Vacation Simulation
-  description: Simulation of someone home, only if "Vacation Mode" is on
-  trigger:
-  - platform: time
-    at: '17:00:00'
-    alias: When the time is 5:00 PM
-  condition:
-  - condition: state
-    entity_id: input_boolean.vacation_mode
-    state: 'on'
-  action:
-  - service: notify.mobile_app_baconphat
-    data:
-      message: Sunset (-47), turned on Kitchen Pendants and Great Room
-      title: Lida Rose - Vacation Mode
-    alias: Notification - Starting Vacation Simulation
-  - delay:
-      minutes: '{{ range(15, 30) | random }}'
-    alias: Delay for Random 15-30 Min
-  - type: turn_on
-    device_id: 8fc6ded957066f5d51f59012770e1384
-    entity_id: switch.solarium_lights
-    domain: switch
-  - type: turn_off
-    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
-    entity_id: switch.great_room_can_lights
-    domain: switch
-  - service: notify.mobile_app_baconphat
-    data:
-      message: Dinner time - Kitchen Pendants are still on, Solarium is on, turned
-        off Great Room
-      title: Lida Rose - Vacation Mode
-    alias: 'Notification: Dinner time - Kitchen Pendants are still on, turned off
-      Great Room'
-  - wait_for_trigger:
-    - platform: time
-      at: '18:30:00'
-    alias: Normalize - Wait until 6:30 PM
-  - delay:
-      minutes: '{{ range(3, 15) | random }}'
-    alias: Delay for Random 3-15 Min
-  - type: turn_off
-    device_id: 8fc6ded957066f5d51f59012770e1384
-    entity_id: switch.solarium_lights
-    domain: switch
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Lida Rose - Vacation Mode
-      message: Dinner is over, pre-shower time. Kitchen pendants are still on, turned
-        on Great Room lights.
-    alias: 'Notifications - Dinner is over, pre-shower:'
-  - delay:
-      minutes: '{{ range(1, 5) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_on
-    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
-    entity_id: switch.great_room_can_lights
-    domain: switch
-  - wait_for_trigger:
-    - platform: time
-      at: '19:00:00'
-    alias: Normalize - Wait until 7:00 PM
-  - delay:
-      minutes: '{{ range(5, 10) | random }}'
-    alias: Delay for Random 5-10 Min
-  - type: turn_on
-    device_id: 3bc5473f3b7ad4042aa95d36a8335dbc
-    entity_id: light.bedroom_toby_light
-    domain: light
-  - delay:
-      minutes: '{{ range(1, 3) | random }}'
-    alias: Delay for Random 1-3 Min
-  - type: turn_on
-    device_id: ec92d86b4d842a7b62541c6854af00b8
-    entity_id: light.bedroom_leo_light
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '19:30:00'
-    alias: Normalize - Wait until 7:30 PM
-  - delay:
-      minutes: '{{ range(1, 5) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_on
-    device_id: 24b3cbd1f66d1e5c6720e21be5db4c6e
-    entity_id: light.bedroom_master_light
-    domain: light
-  - delay:
-      minutes: 3
-  - type: turn_off
-    device_id: 24b3cbd1f66d1e5c6720e21be5db4c6e
-    entity_id: light.bedroom_master_light
-    domain: light
-  - delay:
-      minutes: 1
-  - type: turn_on
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: light.elaina_bath_light
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '20:00:00'
-    alias: Normalize - Wait until 8:00 PM
-  - delay:
-      minutes: '{{ range(1, 5) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_off
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: light.elaina_bath_light
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '20:10:00'
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Lida Rose - Vacation Mode
-      message: Bed time - Littlies
-    alias: Notifications - ~ 8:10- 8:30 - Bed Time - Littlies
-  - delay:
-      minutes: '{{ range(1, 20) | random }}'
-    alias: Delay for Random 1-20 Min
-  - type: turn_on
-    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
-    entity_id: switch.great_room_can_lights
-    domain: switch
-  - delay:
-      minutes: '{{ range(1, 5) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_on
-    device_id: a4ae260cd4ea081a44f0bd543e591ac3
-    entity_id: light.kitchen_lights_pendants
-    domain: light
-  - delay:
-      minutes: '{{ range(1, 3) | random }}'
-    alias: Delay for Random 1-3 Min
-  - type: turn_off
-    device_id: 3bc5473f3b7ad4042aa95d36a8335dbc
-    entity_id: light.bedroom_toby_light
-    domain: light
-  - delay:
-      minutes: '{{ range(1, 3) | random }}'
-    alias: Delay for Random 1-3 Min
-  - type: turn_off
-    device_id: 24b3cbd1f66d1e5c6720e21be5db4c6e
-    entity_id: light.bedroom_master_light
-    domain: light
-  - delay:
-      minutes: '{{ range(5, 10) | random }}'
-    alias: Delay for Random 5-10 Min
-  - type: turn_off
-    device_id: ec92d86b4d842a7b62541c6854af00b8
-    entity_id: light.bedroom_leo_light
-    domain: light
-  - delay:
-      minutes: '{{ range(1, 3) | random }}'
-    alias: Delay for Random 1-3 Min
-  - type: turn_on
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: light.elaina_bath_light
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '21:00:00'
-    alias: Normalize - Wait for when the time is 9:00 PM
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Lida Rose - Vacation Mode
-      message: Bed time - 9:00 - Showers over, time for Family time
-    alias: Notifications - 9:00 - Showers over, time for Family time
-  - delay:
-      minutes: '{{ range(5, 10) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_on
-    device_id: a4ae260cd4ea081a44f0bd543e591ac3
-    entity_id: light.kitchen_lights_pendants
-    domain: light
-  - type: turn_off
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: light.elaina_bath_light
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '22:00:00'
-    alias: Normalize - Wait for when the time is 10:00 PM
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Lida Rose - Vacation Mode
-      message: Bed time - Teenagers
-    alias: Bed Time - Teenagers
-  - type: turn_off
-    device_id: a4ae260cd4ea081a44f0bd543e591ac3
-    entity_id: light.kitchen_lights_pendants
-    domain: light
-  - wait_for_trigger:
-    - platform: time
-      at: '23:03:00'
-    alias: Normalize - Wait for when the time is 11:30 PM
-  - delay:
-      minutes: '{{ range(5, 10) | random }}'
-    alias: Delay for Random 1-5 Min
-  - type: turn_off
-    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
-    entity_id: switch.great_room_can_lights
-    domain: switch
-  - service: scene.turn_on
-    target:
-      entity_id: scene.house_lights_off
-    metadata: {}
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Lida Rose - Vacation Mode
-      message: Vacation Simulation Complete
-    alias: Vacation Simulation Complete
-  - delay:
-      minutes: '{{ range(5, 10) | random }}'
-    alias: Delay for Random 1-5 Min
-  mode: single
 - id: '1673504834274'
   alias: Alert - Master Therm - Below 55
-  description: ''
+  description: Sends notifications to phones via app and SMS if the temperature in
+    the Master Bathroom is below 55 degrees
   trigger:
-  - type: temperature
-    platform: device
-    device_id: a472c5f70eb5aaec3b9ec82b58bdc2a5
-    entity_id: sensor.bedroom_master_therm_temperature
-    domain: sensor
+  - platform: numeric_state
+    entity_id:
+    - sensor.bedroom_master_therm_temperature_2
     below: 55
   condition: []
   action:
@@ -792,14 +521,11 @@
     data:
       message: 'Temperature in Master Bedroom is below 55 degrees '
       title: '!!! ALERT !!!'
-  - service: notify.gmail_via_sms
-    data:
-      title: '!!! ALERT !!!'
-      message: 'Temperature in Master Bedroom is below 55 degrees '
   mode: single
 - id: '1675393826883'
   alias: Alert - Garage Service Door Ajar
-  description: ''
+  description: Sends alerts to phones when the Garage Door service door is open for
+    more than 1 min. This is to prevent bugs or critters from wondering into the house.
   trigger:
   - type: opened
     platform: device
@@ -817,8 +543,8 @@
       message: Garage - Service Door is ajar!!  Close the door!!!
   mode: single
 - id: '1675903426749'
-  alias: Bedroom - Master - Magic Button -Lights
-  description: Toggles lights on/off
+  alias: Bedroom - Master - Magic Button - Lights
+  description: Toggles lights on/off in the Master bedroom
   trigger:
   - device_id: aff2af2a82a95a8be59e13a6b9e88518
     domain: zha
@@ -834,11 +560,12 @@
   mode: single
 - id: '1678837751477'
   alias: Alert - Front Door Motion Detection
-  description: ''
+  description: Sends notification when motion is detected on front door camera to
+    phones, TV and theater projector
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.g3_flex_motion
+    - binary_sensor.front_door_camera_motion
     to: 'on'
   condition: []
   action:
@@ -847,13 +574,13 @@
       title: Security Notification
       message: Motion Detected at front door!
       data:
-        entity_id: camera.g3_flex_high
+        entity_id: camera.front_door_camera_high
   - service: notify.mobile_app_chtrmachg65k9
     data:
       title: Security Notification
       message: Motion Detected at front door!
       data:
-        entity_id: camera.g3_flex_high
+        entity_id: camera.front_door_camera_high
   mode: single
 - id: '1679257893003'
   alias: Theater - Movie - Done
@@ -963,12 +690,17 @@
   mode: single
 - id: '1679970884868'
   alias: Bathroom Fan - Master - Shower Humidity
-  description: ''
+  description: If the thermal sensor detects humidity above 60% in the bathroom, turn
+    on the bathroom fan
   trigger:
   - platform: numeric_state
     above: 60
-    entity_id: sensor.bathroom_master_therm_humidity
-  condition: []
+    entity_id:
+    - sensor.bathdroom_master_therm_humidity_2
+  condition:
+  - condition: time
+    after: 07:00:00
+    before: 00:00:00
   action:
   - type: turn_on
     device_id: 5bf10f3430f60835bcadd6e24fe5af39
@@ -977,7 +709,7 @@
   mode: single
 - id: '1679971264816'
   alias: Bathroom Fan - Master - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 5 minutes
   trigger:
   - platform: device
     type: turned_on
@@ -997,11 +729,13 @@
   mode: single
 - id: '1680152410300'
   alias: 'Bathroom Fan - Toby_Leo - Shower Humidity '
-  description: ''
+  description: If the thermal sensor detects humidity above 60% in the bathroom, turn
+    on the bathroom fan
   trigger:
   - platform: numeric_state
-    entity_id: sensor.lumi_lumi_weather_humidity_3
-    above: 60
+    entity_id:
+    - sensor.lumi_lumi_weather_humidity_3
+    above: 50
   condition: []
   action:
   - type: turn_on
@@ -1011,7 +745,7 @@
   mode: single
 - id: '1680152639324'
   alias: Bathroom Fan - Toby_Leo - Left On
-  description: ''
+  description: Turns off the bathroom fan if left on for more than 10 minutes
   trigger:
   - platform: device
     type: turned_on
@@ -1031,15 +765,21 @@
   mode: single
 - id: '1680158161495'
   alias: Alert - Gas Detected
-  description: ''
+  description: Sends alert to cell phones if natural gas or CO2 is detected in the
+    mechanical room
   trigger:
-  - platform: numeric_state
-    entity_id: sensor.mech_gas_detector_gas_concentration
+  - alias: Gas detector above 600ppm
+    platform: numeric_state
+    entity_id:
+    - sensor.mech_gas_detector_gas_concentration
     above: 800
-    alias: Gas detector above 800ppm
   condition: []
   action:
-  - service: notify.gmail_via_sms
+  - service: notify.sms_everyone
+    data:
+      title: '!! Gas Leak Alert !!'
+      message: '{{trigger.alias}}'
+  - service: notify.notify
     data:
       title: '!! Gas Leak Alert !!'
       message: '{{trigger.alias}}'
@@ -1052,7 +792,7 @@
     input:
       threshold: 10
       actions:
-      - service: notify.gmail_to_email
+      - service: notify.ha_to_gmail
         data:
           message: '{{sensors}}'
           title: Get On It!
@@ -1064,11 +804,13 @@
         - 971888821211f7f708ea18855bf257eb
       day: 3
 - id: '1687800539936'
-  alias: Cell Phones - Charge me!
-  description: ''
+  alias: Alert - Cell Phones - Charge me!
+  description: From time to time, someone does not notice the red battery indicator
+    on their phone. This prompts to make the user aware its time to recharge the phone.
   trigger:
   - type: battery_level
     platform: device
+    alias: BaconPhat
     device_id: ef32865f63e0716dcbe9e7440780c1e8
     entity_id: sensor.baconphat_battery_level
     domain: sensor
@@ -1078,4 +820,162 @@
   - service: notify.mobile_app_baconphat
     data:
       message: I need to be charged!
+  mode: single
+- id: '1690340775890'
+  alias: Announcement - Rainbow Time
+  description: Announces “rainbow time” when the sun set is at 10.16 on the horizon
+    and the chandelier lights up the foyer/main stair case/study
+  trigger:
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: 6
+  condition:
+  - condition: time
+    after: '13:00:00'
+    weekday:
+    - sat
+    - fri
+    - thu
+    - wed
+    - tue
+    - mon
+    - sun
+  - type: is_illuminance
+    condition: device
+    device_id: 330b6bf9eced7be7462f4560e0c9c707
+    entity_id: 25432cf9d3b8d3ab8cb0979f743f9010
+    domain: sensor
+    above: 100
+  action:
+  - service: notify.notify
+    data:
+      message: Rainbow Time!
+      title: Announcement
+  mode: single
+- id: '1690347579276'
+  alias: Alert - Ohana Not Fed
+  description: If Ohana has not been fed, send notification
+  trigger:
+  - platform: time
+    at: 08:30:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.ohana_fed
+    state: 'off'
+  action:
+  - service: notify.notify
+    data:
+      message: Feed/Meds for Ohana!!!
+  - service: notify.sms_elijah
+    data:
+      message: Feed/Meds for Ohana!!!
+  mode: single
+- id: '1695409143932'
+  alias: Christmas Lights - Banisters On
+  description: If Helper "Christmas Time" is on, turns on the Christmas lights wrapped
+    around the banisters
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.christmas_time
+    state: 'on'
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.christmas_lights_banister_on
+    metadata: {}
+  mode: single
+- id: '1698907128151'
+  alias: Ohana Fed
+  description: If Ohana is fed,  the lid sets the state of the Helper to On, meaning
+    the lid was opened and she was fed.
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.lumi_lumi_sensor_magnet_aq2_opening_2
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    data: {}
+    target:
+      entity_id: input_boolean.ohana_fed
+  - delay:
+      hours: 3
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.ohana_fed
+  mode: single
+- id: '1699127508376'
+  alias: Kitchen - Magic Button -- Christmas Tree
+  description: Single click, turns on the Christmas Tree
+  trigger:
+  - device_id: a96f25e4bdaa46b723277e82f971aa11
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: remote_button_short_press
+  condition: []
+  action:
+  - type: toggle
+    device_id: 1bdf319855e06aecbc511dab0f025028
+    entity_id: 4564c3647b7c809801896c52050aa375
+    domain: switch
+  mode: single
+- id: '1700014308167'
+  alias: Bedroom - Master - Magic Button - Fireplace
+  description: Turns on the master fireplace, sets the timer for 1 hour to turn off.
+  trigger:
+  - device_id: aff2af2a82a95a8be59e13a6b9e88518
+    domain: zha
+    platform: device
+    type: remote_button_double_press
+    subtype: remote_button_double_press
+  condition: []
+  action:
+  - if:
+    - condition: state
+      entity_id: input_boolean.master_fireplace
+      state: 'off'
+    then:
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.master_fireplace
+    - service: remote.send_command
+      data:
+        device: master_fireplace
+        command: power
+      target:
+        entity_id: remote.broadlink_rm4_pro
+    - delay:
+        hours: 1
+        minutes: 0
+        seconds: 0
+        milliseconds: 0
+    - service: remote.send_command
+      data:
+        device: master_fireplace
+        command: power
+      target:
+        entity_id: remote.broadlink_rm4_pro
+    else:
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.master_fireplace
+    - service: remote.send_command
+      data:
+        device: master_fireplace
+        command: power
+      target:
+        entity_id: remote.broadlink_rm4_pro
   mode: single
