@@ -4,7 +4,9 @@ vacation_mode_sensors:
     - light.study_lights
     - switch.great_room_can_lights
     - light.kitchen_lights_pendants
+    - switch.solarium_lights
     - light.bedroom_elaina_light
     - light.bedroom_master_light
     - light.bedroom_leo_light
     - light.bedroom_toby_light
+    - light.bathroom_master_lights
