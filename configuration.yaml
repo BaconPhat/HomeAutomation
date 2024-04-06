@@ -1,11 +1,26 @@
 # Loads default set of integrations. Do not remove.
 default_config:
+history:
 
+# YAML Includes:
+## Default
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+## Custom
+notify: !include notify.yaml
+group: !include groups.yaml
+
+# HTTP login details
 http:
   ip_ban_enabled: true
   login_attempts_threshold: 5
 
-# Zigbee Config - hard coded channel to use
+# MariaDB rather than SQLite
+recorder:
+  db_url: !secret db-connection
+
+  # Zigbee Config - hard coded channel to use
 zha:
   zigpy_config:
     network:
@@ -15,11 +30,3 @@ zha:
 # Text to speech
 tts:
   - platform: google_translate
-
-# YAML Includes:
-## Default
-automation: !include automations.yaml
-script: !include scripts.yaml
-scene: !include scenes.yaml
-## Custom
-notify: !include notify.yaml # Notifications
