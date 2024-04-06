@@ -89,9 +89,9 @@
   - service: notify.notify
     data:
       title: Alert!!
-      message: "{{trigger.alias}} has been {% if is_state('binary_sensor.group_door_sensors',
-        'off') %} \n  closed\n{% elif is_state('binary_sensor.group_door_sensors',
-        'on') %}\n  opened\n{% endif %} "
+      message: "{{ trigger.alias }} has been\n  {% if is_state('group.younglings_door_sensors',
+        'Off') %}\n   \"closed\"\n  {% elif is_state('group.younglings_door_sensors',
+        'On') %}\n    \"open\"\n  {% endif %}"
   mode: single
 - id: '1668228377279'
   alias: Bathroom Fan - Basement - Left On
@@ -125,6 +125,7 @@
   - condition: state
     entity_id: input_boolean.christmas_time
     state: 'on'
+    enabled: true
   action:
   - service: light.turn_on
     data:
@@ -133,10 +134,12 @@
       entity_id:
       - light.floor_2_banister_left
       - light.floor_2_banister_right
+    alias: Dim Banisters
   - service: scene.turn_on
     target:
       entity_id: scene.christmas_lights_windows_on
     metadata: {}
+    enabled: false
   - delay:
       hours: 0
       minutes: 0
@@ -146,6 +149,7 @@
     target:
       entity_id: scene.christmas_lights_exterior
     metadata: {}
+    enabled: false
   mode: single
 - id: '1668830222350'
   alias: Study - Lighting
@@ -155,15 +159,9 @@
   - device_id: b0ee0f32f6e310570644faccd2ba5e75
     domain: zha
     platform: device
-    type: remote_button_long_release
-    subtype: remote_button_long_release
-  - platform: sun
-    event: sunset
-    offset: '-45'
-  condition:
-  - condition: state
-    entity_id: person.baconphat
-    state: home
+    type: remote_button_long_press
+    subtype: remote_button_long_press
+  condition: []
   action:
   - type: toggle
     device_id: ff948034f51b5e665e6cc62868d7e2fd
@@ -180,15 +178,13 @@
   - condition: state
     entity_id: input_boolean.christmas_time
     state: 'on'
+    enabled: true
   action:
   - service: scene.turn_on
     target:
       entity_id: scene.christmas_lights_windows_off
     metadata: {}
-  - service: scene.turn_on
-    target:
-      entity_id: scene.christmas_trees_off
-    metadata: {}
+    enabled: false
   - service: scene.turn_on
     target:
       entity_id: scene.christmas_lights_banister_off
@@ -197,6 +193,11 @@
     target:
       entity_id: scene.christmas_lights_exterior_off
     metadata: {}
+    enabled: false
+  - service: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.christmas_trees_on_duplicate
   mode: single
 - id: '1668839452852'
   alias: Study - Magic Button - On the Air
@@ -240,7 +241,7 @@
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.lumi_lumi_vibration_aq1_iaszone_2
+    - binary_sensor.laundry_dryer_vibration_vibration
     from: 'on'
     to: 'off'
     for:
@@ -328,7 +329,8 @@
     on the bathroom fan
   trigger:
   - platform: numeric_state
-    entity_id: sensor.bathroom_basement_therm_humidity
+    entity_id:
+    - sensor.bathroom_basement_therm_humidity
     above: 60
   condition:
   - condition: time
@@ -437,7 +439,7 @@
   - type: opened
     platform: device
     device_id: 79dc17c0ac10bdc741cd0e8fe149146a
-    entity_id: binary_sensor.dishwasher_door_opening
+    entity_id: fdee1367f26e926330895a88b05a37bb
     domain: binary_sensor
   condition:
   - condition: state
@@ -513,7 +515,7 @@
   trigger:
   - platform: numeric_state
     entity_id:
-    - sensor.bedroom_master_therm_temperature_2
+    - sensor.bedroom_master_therm_temperature
     below: 55
   condition: []
   action:
@@ -530,7 +532,7 @@
   - type: opened
     platform: device
     device_id: 6f34cdf76414328ba9f305833716b8d8
-    entity_id: binary_sensor.lumi_lumi_sensor_magnet_aq2_opening_3
+    entity_id: 7aaff71110863f5dec3c4cff31452d6a
     domain: binary_sensor
     for:
       hours: 0
@@ -549,9 +551,20 @@
   - device_id: aff2af2a82a95a8be59e13a6b9e88518
     domain: zha
     platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
-  condition: []
+    type: remote_button_double_press
+    subtype: remote_button_double_press
+  condition:
+  - condition: time
+    after: '15:00:00'
+    before: 07:00:00
+    weekday:
+    - sat
+    - fri
+    - thu
+    - wed
+    - tue
+    - mon
+    - sun
   action:
   - type: toggle
     device_id: 24b3cbd1f66d1e5c6720e21be5db4c6e
@@ -583,8 +596,8 @@
         entity_id: camera.front_door_camera_high
   mode: single
 - id: '1679257893003'
-  alias: Theater - Movie - Done
-  description: ''
+  alias: Theater - Entertainment - Done
+  description: Done playing, turn off all the things
   trigger:
   - platform: device
     device_id: 1fe9588ccfd494098968e568e1630bb3
@@ -646,8 +659,8 @@
       entity_id: light.theater_lights_cans
   mode: single
 - id: '1679265731944'
-  alias: Theater - Movie - Startup
-  description: Starting up a movie
+  alias: Theater - Entertainment - Startup
+  description: Starting up a movie/blueray/xbox
   trigger:
   - platform: device
     device_id: 1fe9588ccfd494098968e568e1630bb3
@@ -694,9 +707,9 @@
     on the bathroom fan
   trigger:
   - platform: numeric_state
-    above: 60
+    above: 50
     entity_id:
-    - sensor.bathdroom_master_therm_humidity_2
+    - sensor.bathroom_master_therm_humidity
   condition:
   - condition: time
     after: 07:00:00
@@ -734,7 +747,7 @@
   trigger:
   - platform: numeric_state
     entity_id:
-    - sensor.lumi_lumi_weather_humidity_3
+    - sensor.bathroom_toby_leo_therm_humidity
     above: 50
   condition: []
   action:
@@ -779,6 +792,7 @@
     data:
       title: '!! Gas Leak Alert !!'
       message: '{{trigger.alias}}'
+    enabled: false
   - service: notify.notify
     data:
       title: '!! Gas Leak Alert !!'
@@ -802,6 +816,7 @@
         device_id:
         - ef32865f63e0716dcbe9e7440780c1e8
         - 971888821211f7f708ea18855bf257eb
+        - 90506b0e10d7d3716291e1d9e1e0d2d4
       day: 3
 - id: '1687800539936'
   alias: Alert - Cell Phones - Charge me!
@@ -841,12 +856,6 @@
     - tue
     - mon
     - sun
-  - type: is_illuminance
-    condition: device
-    device_id: 330b6bf9eced7be7462f4560e0c9c707
-    entity_id: 25432cf9d3b8d3ab8cb0979f743f9010
-    domain: sensor
-    above: 100
   action:
   - service: notify.notify
     data:
@@ -887,15 +896,19 @@
     target:
       entity_id: scene.christmas_lights_banister_on
     metadata: {}
+  - service: scene.turn_on
+    metadata: {}
+    target:
+      entity_id: scene.christmas_trees_on
   mode: single
 - id: '1698907128151'
-  alias: Ohana Fed
+  alias: Monitor - Ohana Fed
   description: If Ohana is fed,  the lid sets the state of the Helper to On, meaning
     the lid was opened and she was fed.
   trigger:
   - platform: state
     entity_id:
-    - binary_sensor.lumi_lumi_sensor_magnet_aq2_opening_2
+    - binary_sensor.laundry_ohana_opening
     from: 'off'
     to: 'on'
   condition: []
@@ -937,45 +950,211 @@
   - device_id: aff2af2a82a95a8be59e13a6b9e88518
     domain: zha
     platform: device
-    type: remote_button_double_press
-    subtype: remote_button_double_press
+    type: remote_button_short_press
+    subtype: remote_button_short_press
   condition: []
   action:
+  - service: remote.send_command
+    data:
+      device: master_fireplace
+      command: power
+    target:
+      entity_id: remote.broadlink_rm4_pro
+  mode: single
+- id: '1703833520303'
+  alias: Monitor - Bedroom - Master - Fireplace
+  description: Monitors the state of the Master Bedroom fireplace
+  trigger:
+  - platform: numeric_state
+    entity_id:
+    - sensor.bedroom_master_fireplace_switch_0_power
+    above: 200
+  condition: []
+  action:
+  - delay:
+      hours: 1
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
   - if:
-    - condition: state
-      entity_id: input_boolean.master_fireplace
-      state: 'off'
+    - type: is_power
+      condition: device
+      device_id: 031bb64e065f0e8f1e68ae9f99ce1f72
+      entity_id: 15b41bde0a2890c05b1a89fa00bfd795
+      domain: sensor
+      above: 200
     then:
-    - service: input_boolean.turn_on
-      data: {}
-      target:
-        entity_id: input_boolean.master_fireplace
     - service: remote.send_command
       data:
         device: master_fireplace
         command: power
       target:
         entity_id: remote.broadlink_rm4_pro
-    - delay:
-        hours: 1
-        minutes: 0
-        seconds: 0
-        milliseconds: 0
-    - service: remote.send_command
-      data:
-        device: master_fireplace
-        command: power
-      target:
-        entity_id: remote.broadlink_rm4_pro
-    else:
-    - service: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.master_fireplace
-    - service: remote.send_command
-      data:
-        device: master_fireplace
-        command: power
-      target:
-        entity_id: remote.broadlink_rm4_pro
+  mode: single
+- id: '1707377867740'
+  alias: Alert - Back Door Open
+  description: Sends alerts to phones when the Back Door is open for more than 1 min.
+    This is to prevent bugs or critters from wondering into the house.
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 6aa954fc077cabf013878842981574c8
+    entity_id: 26b1e93b7c47f0b394b500a4d6c72f64
+    domain: binary_sensor
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.notify
+    data:
+      message: Back Door is ajar!!  Close the door!!!
+  mode: single
+- id: '1707532099129'
+  alias: Theater -  Timer - Power Cycle Screen
+  description: Resets the theater screen- this is a bug in the screen roller firmware.
+    Manufacturer recommendation was to unplug then plug back in
+  trigger:
+  - platform: time
+    at: 05:00:00
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 18a234b26e5caabaebae3c7e8baa54fb
+    entity_id: 239baa6d0c88a50732ea4f1d3f6c7bc6
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  - type: turn_on
+    device_id: 18a234b26e5caabaebae3c7e8baa54fb
+    entity_id: 239baa6d0c88a50732ea4f1d3f6c7bc6
+    domain: switch
+  mode: single
+- id: '1707538864512'
+  alias: Theater - Xbox - Playing
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.theater_receiver
+    to: Xbox 360
+    attribute: source
+  condition:
+  - condition: state
+    entity_id: input_boolean.theater_movie_lighting
+    state: 'on'
+  action:
+  - type: turn_off
+    device_id: 4915e7300b67dd2a139ab5bb2441be7a
+    entity_id: light.theater_lights_cans
+    domain: light
+  mode: single
+- id: '1709419857512'
+  alias: Bedroom - Master - Large Window - No Morning Noise
+  description: Turn off power to devices from 6:00 AM to 10 AM, then power on.
+  trigger:
+  - platform: time
+    at: 06:00:00
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 6411f13e9cfeab9c9d6ae04a334f9c6d
+    entity_id: 5f218bf723f1ba52f58cbe054578d009
+    domain: switch
+  - delay:
+      hours: 4
+      minutes: 0
+      seconds: 0
+      milliseconds: 0
+  - type: turn_on
+    device_id: 6411f13e9cfeab9c9d6ae04a334f9c6d
+    entity_id: 5f218bf723f1ba52f58cbe054578d009
+    domain: switch
+  mode: single
+- id: '1710740477547'
+  alias: Alert - Motion Detected - Leo
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 17fbecda4bf3f5328237533db3213ec1
+    entity_id: d6c00a2504e3a77e3495cdf0b03b5c59
+    domain: binary_sensor
+  condition:
+  - condition: or
+    conditions:
+    - condition: time
+      before: '14:30:00'
+      after: '13:00:00'
+      alias: Nap Time
+    - alias: Bed Time
+      condition: time
+      before: 06:30:00
+      after: '20:30:00'
+    enabled: true
+  action:
+  - service: notify.notify
+    data:
+      title: Alert!!
+      message: Leo's motion detected
+  mode: single
+- id: '1710816864784'
+  alias: Alert - Motion Detected - Toby
+  description: ''
+  trigger:
+  - type: motion
+    platform: device
+    device_id: 756a80040c26d7d7c11232370d6827f1
+    entity_id: 16336b2b3a86bf964175398b15a80bec
+    domain: binary_sensor
+  condition:
+  - condition: or
+    conditions:
+    - condition: time
+      before: '14:30:00'
+      after: '13:00:00'
+      alias: Nap Time
+    - alias: Bed Time
+      condition: time
+      before: 06:30:00
+      after: '20:30:00'
+    enabled: true
+  action:
+  - service: notify.notify
+    data:
+      title: Alert!!
+      message: Toby's motion detected
+  mode: single
+- id: '1712431581731'
+  alias: Alert - Door Open - Toby's Bathroom
+  description: When Toby or Leo opens  a bathroom or bedroom door, during nap time
+    or bed time, alerts are sent
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.bathroom_toby_door_opening
+    alias: Toby's Bathroom Door
+  condition:
+  - condition: or
+    conditions:
+    - condition: time
+      before: '14:30:00'
+      after: '13:00:00'
+      alias: Nap Time
+    - alias: Bed Time
+      condition: time
+      before: 06:30:00
+      after: '20:30:00'
+    enabled: true
+  action:
+  - service: notify.notify
+    data:
+      title: Alert!!
+      message: "{{ trigger.alias }} has been\n  {% if is_state('binary_sensor.bathroom_toby_door_opening',
+        'Off') %}\n   \"closed\"\n  {% elif is_state(binary_sensor.bathroom_toby_door_opening,
+        'On') %}\n    \"open\"\n  {% endif %}"
   mode: single
