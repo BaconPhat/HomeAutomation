@@ -1,3 +1,10 @@
+# SendGrid
+- name: SendGrid-pguibord2@gmail.com
+  platform: sendgrid
+  api_key: !secret api-token
+  sender: pj@guibord.tech
+  recipient: pguibord2@gmail.com
+
 # HA-to-Gmail
 - name: HA-to-Gmail
   platform: smtp
