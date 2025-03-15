@@ -1,43 +1,3 @@
-- id: '1668838400545'
-  name: Christmas Lights - Windows - On
-  entities:
-    switch.study_quad_top:
-      friendly_name: Study - Quad - Top
-      state: 'on'
-    switch.dinning_outlet:
-      friendly_name: Dinning - Outlet
-      state: 'on'
-    switch.solarium_outlet:
-      friendly_name: Solarium - Outlet
-      state: 'on'
-    switch.bedroom_elaina_outlet_1:
-      friendly_name: Bedroom - Elaina - Outlet 1
-      state: 'on'
-    switch.bedroom_elaina_outlet_2:
-      friendly_name: Bedroom - Elaina - Outlet 2
-      state: 'on'
-    switch.bedroom_leo_outlet:
-      friendly_name: Bedroom - Leo - Outlet
-      state: 'on'
-    switch.bedroom_toby_outlet:
-      friendly_name: Bedroom - Toby -  Outlet
-      state: 'on'
-    switch.bedroom_elijah_outlet:
-      friendly_name: Bedroom - Elijah - Outlet
-      state: 'on'
-    switch.great_room_right:
-      friendly_name: Great Room - Right
-      state: 'on'
-    switch.bedroom_master_large_window:
-      friendly_name: Bedroom - Master - Large Window
-      state: 'on'
-    switch.bedroom_master_small_window:
-      friendly_name: Bedroom - Master - Small Window
-      state: 'on'
-  metadata:
-    switch.study_quad_top:
-      entity_only: true
-  icon: mdi:string-lights
 - id: '1671383116835'
   name: Dishes - Clean
   entities:
@@ -80,7 +40,7 @@
       - 0.172
       - 0.747
       state: 'on'
-  icon: mdi:dishwasher
+  icon: mdi:silverware-clean
   metadata: {}
 - id: '1671383140060'
   name: Dishes - Dirty
@@ -124,7 +84,7 @@
       - 0.667
       - 0.284
       state: 'on'
-  icon: mdi:dishwasher-off
+  icon: mdi:liquid-spot
   metadata: {}
 - id: '1671383951945'
   name: Dishes - Running
@@ -170,7 +130,7 @@
       friendly_name: Kitchen - Dishwasher - Status Lights
       supported_features: 36
       state: 'on'
-  icon: mdi:dishwasher-alert
+  icon: mdi:silverware
   metadata: {}
 - id: '1671669683621'
   name: Color - Alex
@@ -310,167 +270,3 @@
       state: 'on'
   metadata: {}
   icon: mdi:dishwasher
-- id: '1695408397687'
-  name: Christmas Lights - Windows - Off
-  entities:
-    switch.bedroom_leo_outlet:
-      friendly_name: Bedroom - Leo - Outlet
-      state: 'off'
-    switch.bedroom_toby_outlet:
-      friendly_name: Bedroom - Toby -  Outlet
-      state: 'off'
-    switch.bedroom_elaina_outlet_1:
-      friendly_name: Bedroom - Elaina - Outlet 1
-      state: 'off'
-    switch.bedroom_elaina_outlet_2:
-      friendly_name: Bedroom - Elaina - Outlet 2
-      state: 'off'
-    switch.great_room_right:
-      friendly_name: Great Room - Right
-      state: 'off'
-    switch.solarium_outlet:
-      friendly_name: Solarium - Outlet
-      state: 'off'
-    switch.dinning_outlet:
-      friendly_name: Dinning - Outlet
-      state: 'off'
-    switch.study_quad_top:
-      friendly_name: Study - Quad - Top
-      state: 'off'
-    switch.bedroom_elijah_outlet:
-      friendly_name: Bedroom - Elijah - Outlet
-      state: 'off'
-    switch.great_room_left_window_lights:
-      friendly_name: Great Room - Left Window Lights
-      state: 'off'
-    switch.bedroom_master_large_wind:
-      friendly_name: Bedroom - Master - Large Wind
-      state: 'off'
-    switch.bedroom_master_small_wind:
-      friendly_name: Bedroom - Master - Small Wind
-      state: 'off'
-    switch.great_room_large_window_switch:
-      friendly_name: Great Room - Large Window Switch
-      state: 'off'
-  metadata:
-    switch.study_quad_top:
-      entity_only: true
-    switch.great_room_left_window_lights:
-      entity_only: true
-  icon: mdi:string-lights-off
-- id: '1695408939834'
-  name: Christmas Lights - Banister - On
-  entities:
-    light.floor_2_banister_left:
-      supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 255
-      friendly_name: Floor 2 - Banister - Left
-      supported_features: 32
-      state: 'on'
-    light.floor_2_banister_right:
-      supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 255
-      friendly_name: Floor 2 - Banister - Right
-      supported_features: 32
-      state: 'on'
-  icon: mdi:home-lightbulb
-  metadata: {}
-- id: '1695408951727'
-  name: Christmas Lights - Banister - Off
-  entities:
-    light.floor_2_banister_left:
-      supported_color_modes:
-      - brightness
-      color_mode:
-      brightness:
-      friendly_name: Floor 2 - Banister - Left
-      supported_features: 32
-      state: 'off'
-    light.floor_2_banister_right:
-      supported_color_modes:
-      - brightness
-      color_mode:
-      brightness:
-      friendly_name: Floor 2 - Banister - Right
-      supported_features: 32
-      state: 'off'
-  icon: mdi:home-lightbulb-outline
-  metadata: {}
-- id: '1699745487142'
-  name: Christmas Lights - Exterior On
-  entities:
-    light.eves_great_room:
-      supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 46
-      friendly_name: Eves - Great Room
-      supported_features: 32
-      state: 'on'
-    light.eves_laundry:
-      supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 46
-      friendly_name: Eves - Laundry
-      supported_features: 32
-      state: 'on'
-  icon: mdi:string-lights
-  metadata: {}
-- id: '1699745529696'
-  name: Christmas Lights - Exterior Off
-  entities:
-    light.eves_great_room:
-      supported_color_modes:
-      - brightness
-      color_mode:
-      brightness:
-      friendly_name: Eves - Great Room
-      supported_features: 32
-      state: 'off'
-    light.eves_laundry:
-      supported_color_modes:
-      - brightness
-      color_mode:
-      brightness:
-      friendly_name: Eves - Laundry
-      supported_features: 32
-      state: 'off'
-  icon: mdi:string-lights-off
-  metadata: {}
-- id: '1709102493307'
-  name: Christmas Trees - On
-  entities:
-    switch.floor_1_front_door_christmas_tree_left_switch:
-      friendly_name: Floor 1 - Front Door - Christmas Tree - Left Switch
-      state: 'on'
-    switch.floor_1_front_door_christmas_tree_right_switch:
-      friendly_name: Floor 1 - Front Door - Christmas Tree - Right Switch
-      state: 'on'
-    switch.christmas_tree:
-      friendly_name: Christmas Tree
-      state: 'on'
-  icon: mdi:pine-tree-variant
-  metadata:
-    switch.christmas_tree:
-      entity_only: true
-- id: '1709102816277'
-  name: Christmas Trees - Off
-  entities:
-    switch.floor_1_front_door_christmas_tree_left_switch:
-      friendly_name: Floor 1 - Front Door - Christmas Tree - Left Switch
-      state: 'off'
-    switch.floor_1_front_door_christmas_tree_right_switch:
-      friendly_name: Floor 1 - Front Door - Christmas Tree - Right Switch
-      state: 'off'
-    switch.christmas_tree:
-      friendly_name: Christmas Tree
-      state: 'off'
-  icon: mdi:pine-tree-variant-outline
-  metadata:
-    switch.christmas_tree:
-      entity_only: true
