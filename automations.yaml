@@ -36,62 +36,21 @@
 - id: '1668126358116'
   alias: Bathroom Fan - Powder - Left On
   description: Turns off the bathroom fan if left on for more than 7 minutes
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - switch.powder_fan
-    from: 'off'
     for:
       hours: 0
       minutes: 7
       seconds: 0
-  condition: []
-  action:
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
   - type: turn_off
     device_id: 899f83ef22eb30be47cba3038bc2ea0b
     entity_id: 41dc30b2c8e790dd7daf180d56d02882
     domain: switch
-  mode: single
-- id: '1668144723959'
-  alias: Alert - Door Opened - Younglings
-  description: When Toby or Leo opens  a bathroom or bedroom door, during nap time
-    or bed time, alerts are sent
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.bedroom_toby_door_opening
-    alias: Toby's Bedroom Door
-  - platform: state
-    entity_id:
-    - binary_sensor.bathroom_toby_door_opening
-    alias: Toby's Bathroom Door
-  - platform: state
-    entity_id:
-    - binary_sensor.bedroom_leo_door_opening
-    alias: Leo's Bedroom Door
-  - platform: state
-    entity_id:
-    - binary_sensor.bathroom_leo_door_opening
-    alias: Leo's Bathroom Door
-  condition:
-  - condition: or
-    conditions:
-    - condition: time
-      before: '14:30:00'
-      after: '13:00:00'
-      alias: Nap Time
-    - alias: Bed Time
-      condition: time
-      before: 06:30:00
-      after: '20:30:00'
-    enabled: true
-  action:
-  - service: notify.notify
-    data:
-      title: Alert!!
-      message: "{{ trigger.alias }} has been\n  {% if is_state('group.younglings_door_sensors',
-        'Off') %}\n   \"closed\"\n  {% elif is_state('group.younglings_door_sensors',
-        'On') %}\n    \"open\"\n  {% endif %}"
   mode: single
 - id: '1668228377279'
   alias: Bathroom Fan - Basement - Left On
@@ -114,102 +73,96 @@
     domain: switch
   mode: single
 - id: '1668820025270'
-  alias: Christmas Lights - Windows/Exterior On, Adjust Banisters
+  alias: Christmas Lights - Windows and Eves on, Dim Banisters
   description: If Helper "Christmas Time" is on, at sunset, turn on all the exterior
-    roof and window Christmas lights. This also dims the banister lights to 20% bright
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: -00:45:00
-  condition:
+    roof and window Christmas lights. This also dims the banister lights to 25% bright
+  triggers:
+  - event: sunset
+    offset: -00:30:00
+    trigger: sun
+  conditions:
   - condition: state
     entity_id: input_boolean.christmas_time
     state: 'on'
     enabled: true
-  action:
-  - service: light.turn_on
+  actions:
+  - alias: Dim Banisters
     data:
-      brightness_pct: 25
+      brightness_pct: 10
+    action: light.turn_on
     target:
-      entity_id:
-      - light.floor_2_banister_left
-      - light.floor_2_banister_right
-    alias: Dim Banisters
-  - service: scene.turn_on
-    target:
-      entity_id: scene.christmas_lights_windows_on
+      entity_id: light.christmas_lights_banisters
+  - alias: Turn On - Group - Window Lights
+    action: homeassistant.turn_on
     metadata: {}
+    data: {}
+    target:
+      entity_id: switch.christmas_lights_windows
     enabled: false
   - delay:
       hours: 0
       minutes: 0
       seconds: 10
       milliseconds: 0
-  - service: scene.turn_on
+  - alias: Turn On - Group - Eves - Lights
+    action: homeassistant.turn_on
+    data: {}
     target:
-      entity_id: scene.christmas_lights_exterior
-    metadata: {}
+      entity_id: light.christmas_lights_eves
     enabled: false
   mode: single
 - id: '1668830222350'
   alias: Study - Lighting
   description: If I am home, turns on the Study lights 45 min before sunset, or, when
     I long press the magic button
-  trigger:
-  - device_id: b0ee0f32f6e310570644faccd2ba5e75
-    domain: zha
-    platform: device
-    type: remote_button_long_press
-    subtype: remote_button_long_press
-  condition: []
-  action:
+  triggers:
+  - device_id: 90bde2da68fc245a2957d2ef964d6974
+    domain: shelly
+    type: long
+    subtype: button
+    trigger: device
+  conditions: []
+  actions:
   - type: toggle
-    device_id: ff948034f51b5e665e6cc62868d7e2fd
-    entity_id: light.study_lights
-    domain: light
+    device_id: 3d7f5b1eef74c7b34c683b7c911b1a20
+    entity_id: e274a8a23fba1f2612f86ac3a348b594
+    domain: switch
   mode: single
 - id: '1668837319768'
-  alias: Christmas Lights - Off
-  description: If Helper "Christmas Time" is on, turns all Christmas lights off.
-  trigger:
-  - platform: time
-    at: '23:30:00'
-  condition:
+  alias: Christmas Lights - Off - All
+  description: Turns all Christmas lights off.
+  triggers:
+  - at: '23:30:00'
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_boolean.christmas_time
     state: 'on'
     enabled: true
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.christmas_lights_windows_off
+  actions:
+  - alias: Turn off all Christmas lights
+    action: homeassistant.turn_off
     metadata: {}
-    enabled: false
-  - service: scene.turn_on
+    data: {}
     target:
-      entity_id: scene.christmas_lights_banister_off
-    metadata: {}
-  - service: scene.turn_on
-    target:
-      entity_id: scene.christmas_lights_exterior_off
-    metadata: {}
-    enabled: false
-  - service: scene.turn_on
-    metadata: {}
-    target:
-      entity_id: scene.christmas_trees_on_duplicate
+      entity_id:
+      - switch.great_room_left_window_christmas_tree
+      - light.christmas_lights_banisters
+      - switch.christmas_lights_front_door
+      - light.christmas_lights_eves
+      - switch.christmas_lights_windows
   mode: single
 - id: '1668839452852'
   alias: Study - Magic Button - On the Air
   description: ''
-  trigger:
-  - device_id: b0ee0f32f6e310570644faccd2ba5e75
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
-  condition: []
-  action:
+  triggers:
+  - device_id: 90bde2da68fc245a2957d2ef964d6974
+    domain: shelly
+    type: single
+    subtype: button
+    trigger: device
+  conditions: []
+  actions:
   - type: toggle
     device_id: e7208f4a9c7632c74955282a23cacb38
     entity_id: switch.study_quad_bottom
@@ -218,21 +171,21 @@
 - id: '1668984543374'
   alias: Bathroom Fan - Elaina - Left On
   description: Turns off the bathroom fan if left on for more than 10 minutes
-  trigger:
-  - platform: device
-    type: turned_on
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: switch.elaina_bath_fan
+  triggers:
+  - type: turned_on
+    device_id: 16515352d9607d8ea238321a742c589e
+    entity_id: e54b4394ec4bdd59a737f07d520edb6a
     domain: switch
+    trigger: device
     for:
       hours: 0
       minutes: 10
       seconds: 0
-  condition: []
-  action:
+  conditions: []
+  actions:
   - type: turn_off
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: switch.elaina_bath_fan
+    device_id: 16515352d9607d8ea238321a742c589e
+    entity_id: e54b4394ec4bdd59a737f07d520edb6a
     domain: switch
   mode: single
 - id: '1669536240178'
@@ -276,30 +229,30 @@
 - id: '1670720766857'
   alias: Study - Magic Button - Camera - Hot
   description: Double-Click the button sends SMS to the Family
-  trigger:
-  - device_id: b0ee0f32f6e310570644faccd2ba5e75
-    domain: zha
-    platform: device
-    type: remote_button_double_press
-    subtype: remote_button_double_press
-  condition: []
-  action:
+  triggers:
+  - device_id: 90bde2da68fc245a2957d2ef964d6974
+    domain: shelly
+    type: double
+    subtype: button
+    trigger: device
+  conditions: []
+  actions:
   - if:
     - condition: state
       entity_id: switch.study_quad_bottom
       state: 'off'
     then:
-    - service: notify.sms_everyone
-      data:
+    - data:
         message: Study Camera is HOT
+      action: notify.sms_everyone
     - type: turn_on
       device_id: e7208f4a9c7632c74955282a23cacb38
       entity_id: switch.study_quad_bottom
       domain: switch
     else:
-    - service: notify.sms_everyone
-      data:
+    - data:
         message: Study Camera - All Clear
+      action: notify.sms_everyone
     - type: turn_off
       device_id: e7208f4a9c7632c74955282a23cacb38
       entity_id: switch.study_quad_bottom
@@ -309,38 +262,65 @@
   alias: Bathroom Fan - Elaina - Shower Humidity
   description: If the thermal sensor detects humidity above 60% in the bathroom, turn
     on the bathroom fan
-  trigger:
-  - platform: numeric_state
-    above: 60
-    entity_id: sensor.lumi_lumi_weather_humidity
-  condition:
-  - condition: time
-    after: 07:00:00
-    before: 00:00:00
-  action:
+  triggers:
+  - above: 60
+    entity_id:
+    - sensor.bathroom_elaina_therm_humidity
+    trigger: numeric_state
+  conditions: []
+  actions:
   - type: turn_on
-    device_id: c54859ef1b7bfc612862d048959faba1
-    entity_id: switch.elaina_bath_fan
+    device_id: 16515352d9607d8ea238321a742c589e
+    entity_id: e54b4394ec4bdd59a737f07d520edb6a
     domain: switch
   mode: single
 - id: '1671243382961'
   alias: Bathroom Fan - Basement - Shower Humidity
   description: If the thermal sensor detects humidity above 60% in the bathroom, turn
     on the bathroom fan
-  trigger:
-  - platform: numeric_state
-    entity_id:
+  triggers:
+  - entity_id:
     - sensor.bathroom_basement_therm_humidity
-    above: 60
-  condition:
-  - condition: time
-    after: 07:00:00
-    before: 00:00:00
-  action:
+    above: 61
+    trigger: numeric_state
+  conditions:
+  - condition: state
+    entity_id: light.basement_bathroom_light
+    state: 'on'
+  actions:
   - type: turn_on
     device_id: 626bd54c1736871c7fc719f0ba7a1a2d
     entity_id: switch.basement_bathroom_fan
     domain: switch
+  - delay:
+      hours: 0
+      minutes: 7
+      seconds: 0
+      milliseconds: 0
+    enabled: true
+  - repeat:
+      count: 3
+      sequence:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_bathroom_light
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 0
+          milliseconds: 80
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.basement_bathroom_light
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
   mode: single
 - id: '1671391679928'
   alias: Kitchen - Dishwasher - Running
@@ -348,34 +328,38 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.kitchen_dishwasher_plug_power
-    above: 45
+    above: 33
   condition:
   - condition: state
     entity_id: input_select.dishwasher_status_list
     state: Dirty
   action:
-  - service: input_select.set_options
-    data:
+  - data:
       options: Running
     target:
       entity_id: input_select.dishwasher_status_list
-  - service: scene.turn_on
-    target:
+    action: input_select.set_options
+  - target:
       entity_id: scene.dishes_running
     metadata: {}
+    action: scene.turn_on
   mode: single
 - id: '1671514087821'
   alias: Kitchen - Dishwasher - Clean
   description: ''
   trigger:
   - platform: numeric_state
-    entity_id: sensor.kitchen_dishwasher_plug_power
+    entity_id:
+    - sensor.kitchen_dishwasher_plug_power
     for:
       hours: 0
-      minutes: 10
+      minutes: 12
       seconds: 0
-    above: 10
-  condition: []
+    below: 6
+  condition:
+  - condition: state
+    entity_id: input_select.dishwasher_status_list
+    state: Running
   action:
   - repeat:
       until:
@@ -389,10 +373,10 @@
             entity_id: input_select.kids_list
             state: Alex
           sequence:
-          - service: scene.turn_on
-            target:
+          - target:
               entity_id: scene.alex_orange
             data: {}
+            action: scene.turn_on
         alias: If Alex - Orange
       - choose:
         - conditions:
@@ -400,10 +384,10 @@
             entity_id: input_select.kids_list
             state: Elaina
           sequence:
-          - service: scene.turn_on
-            data: {}
+          - data: {}
             target:
               entity_id: scene.color_elaina
+            action: scene.turn_on
         alias: If Elaina - Purple
       - choose:
         - conditions:
@@ -411,55 +395,25 @@
             entity_id: input_select.kids_list
             state: Elijah
           sequence:
-          - service: scene.turn_on
-            data: {}
+          - data: {}
             target:
               entity_id: scene.color_elijah
+            action: scene.turn_on
         alias: If Elijah - Blue
       - delay:
           hours: 0
           minutes: 0
           seconds: 3
           milliseconds: 0
-      - service: scene.turn_on
-        target:
+      - target:
           entity_id: scene.dishes_done
         metadata: {}
+        action: scene.turn_on
       - delay:
           hours: 0
           minutes: 0
           seconds: 3
           milliseconds: 0
-- id: '1671643562521'
-  alias: Kitchen - Dishwasher - Dirty
-  description: If the dishwasher door is open, as long as the condition of 'dirty'
-    is true, light the LED strip to red for 5 seconds to visually indicate the dishes
-    are dirty
-  trigger:
-  - type: opened
-    platform: device
-    device_id: 79dc17c0ac10bdc741cd0e8fe149146a
-    entity_id: fdee1367f26e926330895a88b05a37bb
-    domain: binary_sensor
-  condition:
-  - condition: state
-    entity_id: input_select.dishwasher_status_list
-    state: Dirty
-  action:
-  - type: turn_on
-    device_id: fb3cdaddc452084da24c9832a9e85706
-    entity_id: light.kitchen_dishwasher_status_lights
-    domain: light
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 5
-      milliseconds: 0
-  - type: turn_off
-    device_id: fb3cdaddc452084da24c9832a9e85706
-    entity_id: light.kitchen_dishwasher_status_lights
-    domain: light
-  mode: single
 - id: '1672893214006'
   alias: Bathroom Fan - Master - Water Closet - Left On
   description: Turns off the bathroom fan if left on for more than 10 minutes
@@ -483,12 +437,12 @@
 - id: '1673225652045'
   alias: Coach Lights - On
   description: Turn coach lights on 45 min before sunset
-  trigger:
-  - platform: sun
-    event: sunset
-    offset: '-45'
-  condition: []
-  action:
+  triggers:
+  - event: sunset
+    offset: '-55'
+    trigger: sun
+  conditions: []
+  actions:
   - type: turn_on
     device_id: e19e3e0d4e0a5b5daa8e3c4d8a2f207a
     entity_id: light.coach_lights_front_door
@@ -508,22 +462,6 @@
     entity_id: light.coach_lights_front_door
     domain: light
   mode: single
-- id: '1673504834274'
-  alias: Alert - Master Therm - Below 55
-  description: Sends notifications to phones via app and SMS if the temperature in
-    the Master Bathroom is below 55 degrees
-  trigger:
-  - platform: numeric_state
-    entity_id:
-    - sensor.bedroom_master_therm_temperature
-    below: 55
-  condition: []
-  action:
-  - service: notify.notify
-    data:
-      message: 'Temperature in Master Bedroom is below 55 degrees '
-      title: '!!! ALERT !!!'
-  mode: single
 - id: '1675393826883'
   alias: Alert - Garage Service Door Ajar
   description: Sends alerts to phones when the Garage Door service door is open for
@@ -540,7 +478,7 @@
       seconds: 0
   condition: []
   action:
-  - service: notify.notify
+  - action: notify.notify
     data:
       message: Garage - Service Door is ajar!!  Close the door!!!
   mode: single
@@ -571,68 +509,50 @@
     entity_id: light.bedroom_master_light
     domain: light
   mode: single
-- id: '1678837751477'
-  alias: Alert - Front Door Motion Detection
-  description: Sends notification when motion is detected on front door camera to
-    phones, TV and theater projector
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.front_door_camera_motion
-    to: 'on'
-  condition: []
-  action:
-  - service: notify.mobile_app_baconphat
-    data:
-      title: Security Notification
-      message: Motion Detected at front door!
-      data:
-        entity_id: camera.front_door_camera_high
-  - service: notify.mobile_app_chtrmachg65k9
-    data:
-      title: Security Notification
-      message: Motion Detected at front door!
-      data:
-        entity_id: camera.front_door_camera_high
-  mode: single
 - id: '1679257893003'
   alias: Theater - Entertainment - Done
   description: Done playing, turn off all the things
-  trigger:
-  - platform: device
-    device_id: 1fe9588ccfd494098968e568e1630bb3
+  triggers:
+  - device_id: 1fe9588ccfd494098968e568e1630bb3
     domain: media_player
     entity_id: media_player.theater_receiver
     type: turned_off
-  condition:
+    trigger: device
+  conditions:
   - condition: state
     entity_id: input_boolean.theater_movie_lighting
     state: 'on'
-  action:
-  - service: light.turn_on
-    data:
-      transition: 19
-      brightness_pct: 100
-    target:
-      entity_id: light.theater_lights_cans
-  - service: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id: input_boolean.theater_movie_lighting
+  actions:
+  - parallel:
+    - data:
+        transition: 20
+        brightness_pct: 100
+      target:
+        entity_id: light.theater_lights_cans
+      action: light.turn_on
+    - data: {}
+      target:
+        entity_id: input_boolean.theater_movie_lighting
+      action: input_boolean.turn_off
+    - type: turn_off
+      device_id: 80f416f3c2118bbfc2c1c5b5e72d3d67
+      entity_id: a6ce0dcf6aaae6e47ea32c60ee5a060a
+      domain: remote
   mode: single
 - id: '1679258023070'
   alias: Theater - Movie - Playing
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - media_player.theater_apple_4k
     to: playing
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: input_boolean.theater_movie_lighting
     state: 'on'
-  action:
+    enabled: true
+  actions:
   - type: turn_off
     device_id: 4915e7300b67dd2a139ab5bb2441be7a
     entity_id: light.theater_lights_cans
@@ -641,44 +561,44 @@
 - id: '1679265507066'
   alias: Theater - Movie - Browsing
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - media_player.theater_apple_4k
     from: playing
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: input_boolean.theater_movie_lighting
     state: 'on'
-  action:
-  - service: light.turn_on
-    data:
+  actions:
+  - data:
       transition: 10
       brightness_pct: 10
     target:
       entity_id: light.theater_lights_cans
+    action: light.turn_on
   mode: single
 - id: '1679265731944'
   alias: Theater - Entertainment - Startup
   description: Starting up a movie/blueray/xbox
-  trigger:
-  - platform: device
-    device_id: 1fe9588ccfd494098968e568e1630bb3
+  triggers:
+  - device_id: 1fe9588ccfd494098968e568e1630bb3
     domain: media_player
     entity_id: media_player.theater_receiver
     type: turned_on
-  condition: []
-  action:
-  - service: light.turn_on
-    data:
+    trigger: device
+  conditions: []
+  actions:
+  - data: {}
+    target:
+      entity_id: input_boolean.theater_movie_lighting
+    action: input_boolean.turn_on
+  - data:
       brightness_pct: 10
       transition: 19
     target:
       device_id: 4915e7300b67dd2a139ab5bb2441be7a
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id: input_boolean.theater_movie_lighting
+    action: light.turn_on
   mode: single
 - id: '1679455871337'
   alias: Theater - Lights - Full Brightness
@@ -705,16 +625,13 @@
   alias: Bathroom Fan - Master - Shower Humidity
   description: If the thermal sensor detects humidity above 60% in the bathroom, turn
     on the bathroom fan
-  trigger:
-  - platform: numeric_state
-    above: 50
+  triggers:
+  - above: 50
     entity_id:
     - sensor.bathroom_master_therm_humidity
-  condition:
-  - condition: time
-    after: 07:00:00
-    before: 00:00:00
-  action:
+    trigger: numeric_state
+  conditions: []
+  actions:
   - type: turn_on
     device_id: 5bf10f3430f60835bcadd6e24fe5af39
     entity_id: switch.bathroom_master_fan
@@ -776,28 +693,6 @@
     entity_id: switch.bathroom_toby_leo_fan
     domain: switch
   mode: single
-- id: '1680158161495'
-  alias: Alert - Gas Detected
-  description: Sends alert to cell phones if natural gas or CO2 is detected in the
-    mechanical room
-  trigger:
-  - alias: Gas detector above 600ppm
-    platform: numeric_state
-    entity_id:
-    - sensor.mech_gas_detector_gas_concentration
-    above: 800
-  condition: []
-  action:
-  - service: notify.sms_everyone
-    data:
-      title: '!! Gas Leak Alert !!'
-      message: '{{trigger.alias}}'
-    enabled: false
-  - service: notify.notify
-    data:
-      title: '!! Gas Leak Alert !!'
-      message: '{{trigger.alias}}'
-  mode: single
 - id: '1681276583048'
   alias: Alert - Low battery level detection
   description: Low battery level detection & notification for all battery sensors
@@ -806,36 +701,15 @@
     input:
       threshold: 10
       actions:
-      - service: notify.ha_to_gmail
-        data:
+      - data:
           message: '{{sensors}}'
           title: Get On It!
+        action: notify.ha_to_gmail
       time: '10:00:00'
       exclude:
         entity_id: []
-        device_id:
-        - ef32865f63e0716dcbe9e7440780c1e8
-        - 971888821211f7f708ea18855bf257eb
-        - 90506b0e10d7d3716291e1d9e1e0d2d4
+        label_id: mobile_devices
       day: 3
-- id: '1687800539936'
-  alias: Alert - Cell Phones - Charge me!
-  description: From time to time, someone does not notice the red battery indicator
-    on their phone. This prompts to make the user aware its time to recharge the phone.
-  trigger:
-  - type: battery_level
-    platform: device
-    alias: BaconPhat
-    device_id: ef32865f63e0716dcbe9e7440780c1e8
-    entity_id: sensor.baconphat_battery_level
-    domain: sensor
-    below: 20
-  condition: []
-  action:
-  - service: notify.mobile_app_baconphat
-    data:
-      message: I need to be charged!
-  mode: single
 - id: '1690340775890'
   alias: Announcement - Rainbow Time
   description: Announces “rainbow time” when the sun set is at 10.16 on the horizon
@@ -862,86 +736,50 @@
       message: Rainbow Time!
       title: Announcement
   mode: single
-- id: '1690347579276'
-  alias: Alert - Ohana Not Fed
-  description: If Ohana has not been fed, send notification
-  trigger:
-  - platform: time
-    at: 08:30:00
-  condition:
-  - condition: state
-    entity_id: input_boolean.ohana_fed
-    state: 'off'
-  action:
-  - service: notify.notify
-    data:
-      message: Feed/Meds for Ohana!!!
-  - service: notify.sms_elijah
-    data:
-      message: Feed/Meds for Ohana!!!
-  mode: single
 - id: '1695409143932'
-  alias: Christmas Lights - Banisters On
+  alias: Christmas Lights - Banisters and Front Door Trees On
   description: If Helper "Christmas Time" is on, turns on the Christmas lights wrapped
     around the banisters
-  trigger:
-  - platform: time
-    at: 07:00:00
-  condition:
+  triggers:
+  - at: 07:00:00
+    trigger: time
+  conditions:
   - condition: state
     entity_id: input_boolean.christmas_time
     state: 'on'
-  action:
-  - service: scene.turn_on
-    target:
-      entity_id: scene.christmas_lights_banister_on
+  actions:
+  - alias: Turn on Front Door Trees
+    action: homeassistant.turn_on
     metadata: {}
-  - service: scene.turn_on
-    metadata: {}
-    target:
-      entity_id: scene.christmas_trees_on
-  mode: single
-- id: '1698907128151'
-  alias: Monitor - Ohana Fed
-  description: If Ohana is fed,  the lid sets the state of the Helper to On, meaning
-    the lid was opened and she was fed.
-  trigger:
-  - platform: state
-    entity_id:
-    - binary_sensor.laundry_ohana_opening
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: input_boolean.turn_on
     data: {}
     target:
-      entity_id: input_boolean.ohana_fed
-  - delay:
-      hours: 3
-      minutes: 0
-      seconds: 0
-      milliseconds: 0
-  - service: input_boolean.turn_off
-    data: {}
+      entity_id:
+      - switch.christmas_lights_front_door
+      - switch.great_room_left_window_christmas_tree
+    enabled: false
+  - alias: Turn On Banisters to 100%
+    data:
+      brightness_pct: 75
+    action: light.turn_on
     target:
-      entity_id: input_boolean.ohana_fed
+      entity_id: light.christmas_lights_banisters
   mode: single
 - id: '1699127508376'
-  alias: Kitchen - Magic Button -- Christmas Tree
+  alias: Kitchen - Magic Button - Christmas Tree
   description: Single click, turns on the Christmas Tree
-  trigger:
+  triggers:
   - device_id: a96f25e4bdaa46b723277e82f971aa11
     domain: zha
-    platform: device
     type: remote_button_short_press
     subtype: remote_button_short_press
-  condition: []
-  action:
-  - type: toggle
-    device_id: 1bdf319855e06aecbc511dab0f025028
-    entity_id: 4564c3647b7c809801896c52050aa375
-    domain: switch
+    trigger: device
+  conditions: []
+  actions:
+  - action: homeassistant.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.great_room_left_window_christmas_tree
   mode: single
 - id: '1700014308167'
   alias: Bedroom - Master - Magic Button - Fireplace
@@ -952,14 +790,21 @@
     platform: device
     type: remote_button_short_press
     subtype: remote_button_short_press
-  condition: []
+  condition:
+  - condition: device
+    device_id: 9844a4878f4d88669f6401bbe894ffb4
+    domain: climate
+    entity_id: 32c8a0c45546dd7d16c2ceb16ca5ec41
+    type: is_hvac_mode
+    hvac_mode: heat
+    enabled: false
   action:
-  - service: remote.send_command
-    data:
+  - data:
       device: master_fireplace
       command: power
     target:
       entity_id: remote.broadlink_rm4_pro
+    action: remote.send_command
   mode: single
 - id: '1703833520303'
   alias: Monitor - Bedroom - Master - Fireplace
@@ -991,26 +836,6 @@
       target:
         entity_id: remote.broadlink_rm4_pro
   mode: single
-- id: '1707377867740'
-  alias: Alert - Back Door Open
-  description: Sends alerts to phones when the Back Door is open for more than 1 min.
-    This is to prevent bugs or critters from wondering into the house.
-  trigger:
-  - type: opened
-    platform: device
-    device_id: 6aa954fc077cabf013878842981574c8
-    entity_id: 26b1e93b7c47f0b394b500a4d6c72f64
-    domain: binary_sensor
-    for:
-      hours: 0
-      minutes: 1
-      seconds: 0
-  condition: []
-  action:
-  - service: notify.notify
-    data:
-      message: Back Door is ajar!!  Close the door!!!
-  mode: single
 - id: '1707532099129'
   alias: Theater -  Timer - Power Cycle Screen
   description: Resets the theater screen- this is a bug in the screen roller firmware.
@@ -1037,17 +862,17 @@
 - id: '1707538864512'
   alias: Theater - Xbox - Playing
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - media_player.theater_receiver
     to: Xbox 360
     attribute: source
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: input_boolean.theater_movie_lighting
-    state: 'on'
-  action:
+    state: 'off'
+  actions:
   - type: turn_off
     device_id: 4915e7300b67dd2a139ab5bb2441be7a
     entity_id: light.theater_lights_cans
@@ -1056,35 +881,36 @@
 - id: '1709419857512'
   alias: Bedroom - Master - Large Window - No Morning Noise
   description: Turn off power to devices from 6:00 AM to 10 AM, then power on.
-  trigger:
-  - platform: time
-    at: 06:00:00
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 6411f13e9cfeab9c9d6ae04a334f9c6d
-    entity_id: 5f218bf723f1ba52f58cbe054578d009
-    domain: switch
+  triggers:
+  - at: 06:00:00
+    trigger: time
+  conditions: []
+  actions:
+  - action: homeassistant.turn_off
+    data: {}
+    target:
+      entity_id: switch.bedroom_master_large_window_bottom
   - delay:
-      hours: 4
+      hours: 6
       minutes: 0
       seconds: 0
       milliseconds: 0
-  - type: turn_on
-    device_id: 6411f13e9cfeab9c9d6ae04a334f9c6d
-    entity_id: 5f218bf723f1ba52f58cbe054578d009
-    domain: switch
+  - action: homeassistant.turn_on
+    data: {}
+    target:
+      entity_id: switch.bedroom_master_large_window_bottom
   mode: single
 - id: '1710740477547'
   alias: Alert - Motion Detected - Leo
-  description: ''
-  trigger:
+  description: Alert when Leo's door motion detector senses movement during sleeping
+    hours
+  triggers:
   - type: motion
-    platform: device
     device_id: 17fbecda4bf3f5328237533db3213ec1
     entity_id: d6c00a2504e3a77e3495cdf0b03b5c59
     domain: binary_sensor
-  condition:
+    trigger: device
+  conditions:
   - condition: or
     conditions:
     - condition: time
@@ -1096,22 +922,69 @@
       before: 06:30:00
       after: '20:30:00'
     enabled: true
-  action:
-  - service: notify.notify
-    data:
-      title: Alert!!
-      message: Leo's motion detected
+  actions:
+  - alias: If PJ is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.baconphat
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: Leo's motion detected
+      action: notify.mobile_app_baconphat
+  - alias: If Charity is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.charity
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: Leo's motion detected
+      action: notify.mobile_app_diznymommy
+  - alias: If Alex is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.alex
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: Leo's motion detected
+      action: notify.mobile_app_jurassican
+  - alias: If Elaina is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elaina
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: Leo's motion detected
+      action: notify.mobile_app_bottle_b
+  - alias: If Elijah is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elijah
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: Leo's motion detected
+      action: notify.mobile_app_wrecker
   mode: single
 - id: '1710816864784'
   alias: Alert - Motion Detected - Toby
-  description: ''
-  trigger:
+  description: Alert when Toby's door motion detector senses movement during sleeping
+    hours
+  triggers:
   - type: motion
-    platform: device
     device_id: 756a80040c26d7d7c11232370d6827f1
     entity_id: 16336b2b3a86bf964175398b15a80bec
     domain: binary_sensor
-  condition:
+    trigger: device
+  conditions:
   - condition: or
     conditions:
     - condition: time
@@ -1123,22 +996,72 @@
       before: 06:30:00
       after: '20:30:00'
     enabled: true
-  action:
-  - service: notify.notify
-    data:
-      title: Alert!!
-      message: Toby's motion detected
+  actions:
+  - if:
+    - condition: state
+      entity_id: person.baconphat
+      state: home
+    then:
+    - action: notify.mobile_app_baconphat
+      metadata: {}
+      data:
+        message: Toby's motion detected
+        target: Alert!!
+    alias: If PJ is Home, send Notification
+  - if:
+    - condition: state
+      entity_id: person.charity
+      state: home
+    then:
+    - action: notify.mobile_app_diznymommy
+      metadata: {}
+      data:
+        message: Toby's motion detected
+        target: Alert!!
+    alias: If Charity is Home, send Notification
+  - if:
+    - condition: state
+      entity_id: person.alex
+      state: home
+    then:
+    - action: notify.mobile_app_jurassican
+      metadata: {}
+      data:
+        message: Toby's motion detected
+        target: Alert!!
+    alias: If Alex is Home, send Notification
+  - if:
+    - condition: state
+      entity_id: person.elaina
+      state: home
+    then:
+    - action: notify.mobile_app_bottle_b
+      metadata: {}
+      data:
+        message: Toby's motion detected
+        target: Alert!!
+    alias: If Elaina is Home, send Notification
+  - if:
+    - condition: state
+      entity_id: person.elijah
+      state: home
+    then:
+    - action: notify.mobile_app_wrecker
+      metadata: {}
+      data:
+        message: Toby's motion detected
+        target: Alert!!
+    alias: If Elijah is Home, send Notification
   mode: single
 - id: '1712431581731'
   alias: Alert - Door Open - Toby's Bathroom
-  description: When Toby or Leo opens  a bathroom or bedroom door, during nap time
-    or bed time, alerts are sent
-  trigger:
-  - platform: state
-    entity_id:
+  description: ''
+  triggers:
+  - entity_id:
     - binary_sensor.bathroom_toby_door_opening
     alias: Toby's Bathroom Door
-  condition:
+    trigger: state
+  conditions:
   - condition: or
     conditions:
     - condition: time
@@ -1150,11 +1073,494 @@
       before: 06:30:00
       after: '20:30:00'
     enabled: true
+  actions:
+  - alias: If PJ is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.baconphat
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_toby_door_opening', 'on')
+          %}\n  Toby's bathroom door has been opened!\n{% else %}\n  Toby's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_baconphat
+  - alias: If Charity is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.charity
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_toby_door_opening', 'on')
+          %}\n  Toby's bathroom door has been opened!\n{% else %}\n  Toby's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_diznymommy
+  - alias: If Alex is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.alex
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_toby_door_opening', 'on')
+          %}\n  Toby's bathroom door has been opened!\n{% else %}\n  Toby's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_jurassican
+  - alias: If Elaina is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elaina
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_toby_door_opening', 'on')
+          %}\n  Toby's bathroom door has been opened!\n{% else %}\n  Toby's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_bottle_b
+  - alias: If Elijah is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elijah
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_toby_door_opening', 'on')
+          %}\n  Toby's bathroom door has been opened!\n{% else %}\n  Toby's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_wrecker
+  mode: single
+- id: '1712446042424'
+  alias: Alert - Door Open - Leo's Bathroom
+  description: Alert when Leo's bathroom door detector senses movement during sleeping
+    hours
+  triggers:
+  - entity_id:
+    - binary_sensor.bathroom_leo_door_opening
+    to:
+    - 'on'
+    - 'off'
+    from:
+    - 'off'
+    - 'on'
+    trigger: state
+  conditions:
+  - condition: or
+    conditions:
+    - condition: time
+      before: '14:30:00'
+      after: '13:00:00'
+      alias: Nap Time
+    - alias: Bed Time
+      condition: time
+      before: 06:30:00
+      after: '20:30:00'
+    enabled: true
+  actions:
+  - alias: If PJ is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.baconphat
+      state: Home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_leo_door_opening', 'on')
+          %}\n  Leo's bathroom door has been opened!\n{% else %}\n  Leo's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_baconphat
+  - alias: If Charity is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.charity
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_leo_door_opening', 'on')
+          %}\n  Leo's bathroom door has been opened!\n{% else %}\n  Leo's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_diznymommy
+  - alias: If Alex is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.alex
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_leo_door_opening', 'on')
+          %}\n  Leo's bathroom door has been opened!\n{% else %}\n  Leo's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_jurassican
+  - alias: If Elaina is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elaina
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_leo_door_opening', 'on')
+          %}\n  Leo's bathroom door has been opened!\n{% else %}\n  Leo's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_bottle_b
+  - alias: If PJ is Home, Notify
+    if:
+    - condition: state
+      entity_id: person.elijah
+      state: home
+    then:
+    - data:
+        title: Alert!!
+        message: "{% if is_state('binary_sensor.bathroom_leo_door_opening', 'on')
+          %}\n  Leo's bathroom door has been opened!\n{% else %}\n  Leo's bathroom
+          door has been closed.\n{% endif %}"
+      action: notify.mobile_app_wrecker
+  mode: single
+- id: '1712800328092'
+  alias: Alert - Stair Case Motion Detected
+  description: Alert when Leo's bathroom door detector senses movement during sleeping
+    hours
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.stairs_motion_motion
+    to: 'on'
+  condition:
+  - condition: time
+    before: 07:00:00
+    after: '23:00:00'
+    weekday:
+    - sun
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
   action:
   - service: notify.notify
+    metadata: {}
     data:
-      title: Alert!!
-      message: "{{ trigger.alias }} has been\n  {% if is_state('binary_sensor.bathroom_toby_door_opening',
-        'Off') %}\n   \"closed\"\n  {% elif is_state(binary_sensor.bathroom_toby_door_opening,
-        'On') %}\n    \"open\"\n  {% endif %}"
+      message: Staircase motion detected
+  mode: single
+- id: '1715901557262'
+  alias: Thermostat - Floor 1 - Summer
+  description: If the thermostat reaches 76, switch HVAC to Cool
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: 42323417e5e9544d915fe2cdda7e08e2
+    entity_id: ff08b5362c593bbd1faeea407dd74dbb
+    domain: sensor
+    above: 76
+  condition: []
+  action:
+  - device_id: 42323417e5e9544d915fe2cdda7e08e2
+    domain: climate
+    entity_id: 6b3b14a566af3a227b0199af1eb0b515
+    type: set_hvac_mode
+    hvac_mode: cool
+  mode: single
+- id: '1715901617211'
+  alias: Thermostat - Floor 2 - Summer
+  description: If the thermostat reaches 76, switch HVAC to Cool
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: 9844a4878f4d88669f6401bbe894ffb4
+    entity_id: ed1c3505eb42ac5c92e924897d40a89b
+    domain: sensor
+    above: 76
+  condition: []
+  action:
+  - device_id: 9844a4878f4d88669f6401bbe894ffb4
+    domain: climate
+    entity_id: 32c8a0c45546dd7d16c2ceb16ca5ec41
+    type: set_hvac_mode
+    hvac_mode: cool
+  mode: single
+- id: '1715901865655'
+  alias: Thermostat - Floor 1 - Winter
+  description: If the thermostat reaches 72, switch HVAC to Heat
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: 42323417e5e9544d915fe2cdda7e08e2
+    entity_id: ff08b5362c593bbd1faeea407dd74dbb
+    domain: sensor
+    below: 73
+  condition: []
+  action:
+  - device_id: 42323417e5e9544d915fe2cdda7e08e2
+    domain: climate
+    entity_id: 6b3b14a566af3a227b0199af1eb0b515
+    type: set_hvac_mode
+    hvac_mode: heat
+  mode: single
+- id: '1715901972159'
+  alias: Thermostat - Floor 2 - Winter
+  description: If the thermostat reaches 73, switch HVAC to Heat
+  trigger:
+  - type: temperature
+    platform: device
+    device_id: 9844a4878f4d88669f6401bbe894ffb4
+    entity_id: ed1c3505eb42ac5c92e924897d40a89b
+    domain: sensor
+    below: 73
+  condition: []
+  action:
+  - device_id: 9844a4878f4d88669f6401bbe894ffb4
+    domain: climate
+    entity_id: 32c8a0c45546dd7d16c2ceb16ca5ec41
+    type: set_hvac_mode
+    hvac_mode: heat
+  mode: single
+- id: '1716164854166'
+  alias: Thermostat - Floor 2 - Summer- 11pm to 76
+  description: Set thermostat to 76 at 11 PM
+  trigger:
+  - platform: time
+    at: '23:00:00'
+  condition:
+  - condition: device
+    device_id: 9844a4878f4d88669f6401bbe894ffb4
+    domain: climate
+    entity_id: 32c8a0c45546dd7d16c2ceb16ca5ec41
+    type: is_hvac_mode
+    hvac_mode: cool
+  action:
+  - service: climate.set_temperature
+    metadata: {}
+    data:
+      temperature: 76
+    target:
+      device_id: 9844a4878f4d88669f6401bbe894ffb4
+  mode: single
+- id: '1716165678474'
+  alias: Thermostat - Floor 2 - Summer - 7am to 77
+  description: Set thermostat to 77 at 7 AM
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition:
+  - condition: device
+    device_id: 9844a4878f4d88669f6401bbe894ffb4
+    domain: climate
+    entity_id: 32c8a0c45546dd7d16c2ceb16ca5ec41
+    type: is_hvac_mode
+    hvac_mode: cool
+  action:
+  - service: climate.set_temperature
+    metadata: {}
+    data:
+      temperature: 77
+    target:
+      device_id: 9844a4878f4d88669f6401bbe894ffb4
+  mode: single
+- id: '1717463360938'
+  alias: Exterior - Water Trees
+  description: Water trees at 5 AM and again at 11 PM
+  trigger:
+  - platform: time
+    at: 05:00:00
+  - platform: time
+    at: '23:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - sun
+    - tue
+    - thu
+  action:
+  - service: rachio.start_watering
+    metadata: {}
+    data:
+      duration: 10
+    target:
+      device_id: ab4f8245a33705efead1a2120a972d60
+  mode: single
+- id: '1720590664079'
+  alias: Great Room - Bed Time
+  description: At 1:00 am turn off the lights in the Great Room
+  triggers:
+  - at: 01:00:00
+    trigger: time
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
+    entity_id: 25dc338316088c63239fe37c268b2b89
+    domain: switch
+  mode: single
+- id: '1725052517913'
+  alias: Announcement -  Elijah - Is Phone Charged?
+  description: Elijah to charge his phone before Friday school day
+  trigger:
+  - platform: time
+    at: '20:00:00'
+  condition:
+  - condition: time
+    weekday:
+    - thu
+  action:
+  - action: notify.sms_elijah
+    data:
+      message: Its Thursday night, is your phone charged for school tomorrow?
+      title: Charge Me?
+  mode: single
+- id: '1728016354582'
+  alias: Kitchen - Dishwasher - Dirty
+  description: If the dishwasher door is open, as long as the condition of 'dirty'
+    is true, light the LED strip to red for 5 seconds to visually indicate the dishes
+    are dirty
+  triggers:
+  - type: opened
+    device_id: 79dc17c0ac10bdc741cd0e8fe149146a
+    entity_id: fdee1367f26e926330895a88b05a37bb
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - condition: state
+    entity_id: input_select.dishwasher_status_list
+    state: Dirty
+  actions:
+  - repeat:
+      until:
+      - type: is_not_open
+        condition: device
+        device_id: 79dc17c0ac10bdc741cd0e8fe149146a
+        entity_id: fdee1367f26e926330895a88b05a37bb
+        domain: binary_sensor
+      sequence:
+      - target:
+          entity_id: scene.dishes_dirty
+        metadata: {}
+        action: scene.turn_on
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_select.kids_list
+            state: Alex
+          sequence:
+          - target:
+              entity_id: scene.alex_orange
+            data: {}
+            action: scene.turn_on
+        alias: If Alex - Orange
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_select.kids_list
+            state: Elaina
+          sequence:
+          - data: {}
+            target:
+              entity_id: scene.color_elaina
+            action: scene.turn_on
+        alias: If Elaina - Purple
+      - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_select.kids_list
+            state: Elijah
+          sequence:
+          - data: {}
+            target:
+              entity_id: scene.color_elijah
+            action: scene.turn_on
+        alias: If Elijah - Blue
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+  - type: turn_off
+    device_id: fb3cdaddc452084da24c9832a9e85706
+    entity_id: 0c697b6658f2661fd85387aff1e307c2
+    domain: light
+  mode: single
+- id: '1729036900238'
+  alias: Lighting - Great Room/Solarium - Before Sunset
+  description: 35 minutes before sunset, turn on the lights in the Great Room and
+    the Solarium
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: -00:35:00
+  conditions: []
+  actions:
+  - type: turn_on
+    device_id: 4b3bf14ae053e6eb5d1d360b22c9179b
+    entity_id: 25dc338316088c63239fe37c268b2b89
+    domain: switch
+  - type: turn_on
+    device_id: 8fc6ded957066f5d51f59012770e1384
+    entity_id: 291b3fa52a10c90f37721bde3b1f14d6
+    domain: switch
+  mode: single
+- id: '1738136879009'
+  alias: Motion Detection Disabled
+  description: ''
+  triggers: []
+  conditions: []
+  actions:
+  - action: camera.disable_motion_detection
+    metadata: {}
+    data: {}
+    target:
+      device_id: c811ce81d0c24b166f448d7fec755ab3
+  mode: single
+- id: '1738813834271'
+  alias: Tag Garage Door - Small Bay is scanned
+  description: ''
+  triggers:
+  - trigger: tag
+    tag_id: fee8ff31-dd48-46e9-86bd-e3815bde2775
+  conditions: []
+  actions:
+  - action: cover.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: cover.garage_door_small_bay
+  mode: single
+- id: '1741287361145'
+  alias: Christmas Time - Reset Everything
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - input_boolean.christmas_time
+    from: 'on'
+    to: 'off'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.christmas_lights_banisters
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.christmas_lights_front_door
+  - action: switch.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.christmas_lights_windows
   mode: single
